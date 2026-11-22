@@ -812,21 +812,84 @@ export function ReviewDesk({
     await save({ ...state, reviewer, reviews: merged, approved: ['admin'] }, 'Paket pengajuan selesai diverifikasi.');
   };
 
-  const reasonSuggestions = useMemo(() => {
-    const lines = [];
-    for (const item of allItems) {
-      if (item.previewOnly) continue;
+  const decisionRecommendation = useMemo(() => {
+    if (isPackage) return null;
+    const activeItems = allItems.filter(item => !item.previewOnly);
+    const tidakSesuai = [];
+    const klarifikasi = [];
+    const unreviewed = [];
+    const customNotes = [];
+
+    for (const item of activeItems) {
       const st = item.effectiveStatus;
-      if (st === 'Tidak sesuai' || st === 'Perlu klarifikasi') {
-        lines.push(`${item.title}: ${item.saved?.note?.trim() || item.summary}`);
-      } else if (item.automatic && st === '') {
-        lines.push(`${item.title}: ${item.summary}`);
-      } else if (item.saved?.note?.trim()) {
-        lines.push(`${item.title}: ${item.saved.note.trim()}`);
+      const userNote = item.saved?.note?.trim();
+      const detailText = userNote || item.summary;
+      if (st === 'Tidak sesuai') {
+        tidakSesuai.push({ item, text: `[${item.stageLabel}] ${item.title}: ${detailText}` });
+      } else if (st === 'Perlu klarifikasi') {
+        klarifikasi.push({ item, text: `[${item.stageLabel}] ${item.title}: ${detailText}` });
+      } else if (!st && item.needsAttention) {
+        unreviewed.push({ item, text: `[${item.stageLabel}] ${item.title}: ${detailText}` });
+      } else if (userNote) {
+        customNotes.push({ item, text: `[${item.stageLabel}] ${item.title}: ${userNote}` });
       }
     }
-    return lines.join('\n').slice(0, 1950);
-  }, [allItems]);
+
+    const fatalAdminIds = new Set(['patient-mismatch', 'gender-mismatch']);
+    const hasFatalAdmin = tidakSesuai.some(({ item }) => fatalAdminIds.has(item.id));
+    const hasCodingOrMedicalFail = tidakSesuai.some(({ item }) => item.stage === 'coding' || item.stage === 'medical');
+    const hasAdminFail = tidakSesuai.some(({ item }) => item.stage === 'admin');
+
+    let status = 'layak';
+    let headline = 'Seluruh indikator administrasi, koding, dan kriteria medis terpenuhi.';
+    let reason = '';
+
+    if (tidakSesuai.length > 0) {
+      const reasons = [
+        ...tidakSesuai.map(entry => entry.text),
+        ...klarifikasi.map(entry => entry.text),
+      ];
+      if (hasFatalAdmin || (hasAdminFail && !hasCodingOrMedicalFail)) {
+        status = 'tidak-layak';
+        headline = `Ditemukan ${tidakSesuai.length} indikator administrasi yang tidak memenuhi syarat penjaminan.`;
+        reason = `Tidak memenuhi syarat administrasi penjaminan JPKM:\n- ${reasons.join('\n- ')}`;
+      } else if (hasCodingOrMedicalFail && !hasAdminFail) {
+        status = 'dispute';
+        headline = `Ditemukan ${tidakSesuai.length} ketidaksesuaian kaidah koding/kriteria klinis yang memerlukan penyesuaian atau kesepakatan medis.`;
+        reason = `Terdapat ketidaksesuaian koding/kriteria medis yang perlu ditinjau ulang bersama RS:\n- ${reasons.join('\n- ')}`;
+      } else {
+        status = 'tidak-layak';
+        headline = `Ditemukan ${tidakSesuai.length} indikator tidak sesuai pada administrasi dan medis/koding.`;
+        reason = `Tidak memenuhi persyaratan verifikasi klaim:\n- ${reasons.join('\n- ')}`;
+      }
+    } else if (klarifikasi.length > 0 || unreviewed.length > 0) {
+      status = 'pending';
+      const pendingList = [...klarifikasi, ...unreviewed];
+      headline = `Terdapat ${pendingList.length} temuan yang memerlukan kelengkapan dokumen atau konfirmasi rumah sakit.`;
+      reason = `Mohon konfirmasi / lengkapi bukti pendukung untuk:\n- ${pendingList.map(entry => entry.text).join('\n- ')}`;
+    } else {
+      status = 'layak';
+      const cleanCount = activeItems.length;
+      const baseReason = `Seluruh dokumen administrasi, kesesuaian koding INA-CBG (${effectivePrimary || 'diagnosis utama'}), dan kriteria medis (${cleanCount} indikator) telah sesuai dengan ketentuan penjaminan JPKM Jawa Barat.`;
+      reason = customNotes.length
+        ? `${baseReason}\nCatatan tambahan:\n- ${customNotes.map(entry => entry.text).join('\n- ')}`
+        : baseReason;
+    }
+
+    return {
+      status,
+      label: outcomes[status],
+      headline,
+      reason: reason.slice(0, 1950),
+      counts: {
+        tidakSesuai: tidakSesuai.length,
+        klarifikasi: klarifikasi.length + unreviewed.length,
+        clean: activeItems.length - tidakSesuai.length - klarifikasi.length - unreviewed.length,
+      },
+    };
+  }, [allItems, isPackage, effectivePrimary]);
+
+  const reasonSuggestions = decisionRecommendation?.reason || '';
 
   const submitDecision = async event => {
     event.preventDefault();
@@ -1172,25 +1235,62 @@ export function ReviewDesk({
               </div>
             ) : (
               <form id="decision-form" onSubmit={submitDecision} onChange={markDirty}>
+                {decisionRecommendation && (
+                  <div className={'decision-recommendation rec-' + decisionRecommendation.status} role="region" aria-label="Saran keputusan verifikasi">
+                    <div className="rec-head">
+                      <div className="rec-title-group">
+                        <span className="rec-eyebrow">SARAN KEPUTUSAN OTOMATIS</span>
+                        <Badge status={decisionRecommendation.status}>{decisionRecommendation.label}</Badge>
+                      </div>
+                      <button
+                        type="button"
+                        className="small primary rec-apply-btn"
+                        disabled={disabled}
+                        onClick={() => {
+                          setForm(current => ({
+                            ...current,
+                            status: decisionRecommendation.status,
+                            reason: decisionRecommendation.reason,
+                          }));
+                          markDirty();
+                        }}
+                      >
+                        <IconCheck />
+                        <span>Gunakan saran &amp; alasan</span>
+                      </button>
+                    </div>
+                    <p className="rec-headline">{decisionRecommendation.headline}</p>
+                    <pre className="rec-reason-preview">{decisionRecommendation.reason}</pre>
+                  </div>
+                )}
+
                 <fieldset className="decision-selector">
                   <legend>Hasil verifikasi klaim</legend>
                   <div className="decision-grid">
                     {decisionChoices.map(([id, label, IconComp]) => {
                       const activeChoice = form.status === id;
+                      const isRecommended = decisionRecommendation?.status === id;
                       return (
                         <button
                           key={id}
                           type="button"
                           disabled={disabled}
                           aria-pressed={activeChoice}
-                          className={'decision-option option-' + id + (activeChoice ? ' is-selected' : '')}
+                          className={'decision-option option-' + id + (activeChoice ? ' is-selected' : '') + (isRecommended ? ' is-recommended' : '')}
                           onClick={() => {
-                            setForm(current => ({ ...current, status: id }));
+                            setForm(current => ({
+                              ...current,
+                              status: id,
+                              reason: !current.reason?.trim() && decisionRecommendation?.reason
+                                ? decisionRecommendation.reason
+                                : current.reason,
+                            }));
                             markDirty();
                           }}
                         >
                           <IconComp />
                           <span>{label}</span>
+                          {isRecommended && <small className="rec-chip">Disarankan</small>}
                         </button>
                       );
                     })}
