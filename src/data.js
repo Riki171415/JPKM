@@ -5,11 +5,68 @@ export const outcomes = {
   'tidak-layak': 'Tidak Layak',
 };
 
+let backendMode = null; // null | 'server' | 'client'
+let clientBackendPromise = null;
+
+function getClientBackend() {
+  if (!clientBackendPromise) {
+    clientBackendPromise = import('./client-backend.js');
+  }
+  return clientBackendPromise;
+}
+
+export function isClientBackend() {
+  return backendMode === 'client';
+}
+
 export async function api(path, config = {}) {
-  const response = await fetch('/api' + path, { ...config, headers: { 'X-Si-Jantan': 'local', ...config.headers } });
+  if (backendMode === 'client') {
+    const { clientApi } = await getClientBackend();
+    return await clientApi(path, config);
+  }
+
+  let response;
+  try {
+    response = await fetch('/api' + path, { ...config, headers: { 'X-Si-Jantan': 'local', ...config.headers } });
+  } catch (networkError) {
+    if (backendMode === null) {
+      backendMode = 'client';
+      const { clientApi } = await getClientBackend();
+      return await clientApi(path, config);
+    }
+    throw networkError;
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  const isJsonResponse = contentType.includes('application/json');
+
+  // If initial API call returns non-JSON 404/502/503 (e.g. hosted on Vercel static without Node server),
+  // switch seamlessly to in-browser client backend (IndexedDB + PDF.js + Tesseract.js).
+  if (backendMode === null && !isJsonResponse && (!response.ok || contentType.includes('text/html'))) {
+    backendMode = 'client';
+    const { clientApi } = await getClientBackend();
+    return await clientApi(path, config);
+  }
+
+  if (backendMode === null && isJsonResponse) {
+    backendMode = 'server';
+  }
+
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || 'Permintaan belum berhasil (' + response.status + ').');
   return data;
+}
+
+export async function resolvePagePreviewUrl({ episodeId, docIndex, pageNumber, fit, rotation }) {
+  if (backendMode === 'client') {
+    const { renderClientPagePreview } = await getClientBackend();
+    return await renderClientPagePreview(episodeId, docIndex, pageNumber, fit, rotation);
+  }
+  const params = new URLSearchParams();
+  if (fit) params.set('size', 'fit');
+  if (rotation) params.set('rot', String(rotation));
+  const query = params.toString();
+  return `/api/episodes/${episodeId}/pages/${docIndex}/${pageNumber}${query ? '?' + query : ''}`;
 }
 
 export function json(method, body) {

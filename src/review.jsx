@@ -5,7 +5,7 @@ import {
 } from '../static/rules.js';
 import { useIcdDictionary } from './icd.js';
 import { claimMeta } from '../static/claimInfo.js';
-import { formatDate, outcomes, rupiah, today } from './data.js';
+import { formatDate, outcomes, resolvePagePreviewUrl, rupiah, today } from './data.js';
 import { needsReason, flagReviews } from './review-validation.js';
 import {
   IconAlertTriangle,
@@ -437,17 +437,43 @@ function Finding({ item, locked, change, show, many, previewOnly, proof }) {
   );
 }
 
-function EvidenceImage({ src, next, page, zoomed }) {
+function EvidenceImage({ episodeId, docIndex, page, nextPage, nextRotation, fit, rotation, zoomed }) {
   const [status, setStatus] = useState('loading');
   const [attempt, setAttempt] = useState(0);
+  const [resolvedSrc, setResolvedSrc] = useState('');
+
   useEffect(() => {
-    if (status !== 'ready' || !next) return;
+    let active = true;
+    setStatus('loading');
+    setResolvedSrc('');
+    resolvePagePreviewUrl({ episodeId, docIndex, pageNumber: page, fit, rotation })
+      .then(url => {
+        if (!active) return;
+        const withRetry = attempt && !url.startsWith('blob:')
+          ? url + (url.includes('?') ? '&' : '?') + 'retry=' + attempt
+          : url;
+        setResolvedSrc(withRetry);
+      })
+      .catch(() => {
+        if (active) setStatus('error');
+      });
+    return () => { active = false; };
+  }, [episodeId, docIndex, page, fit, rotation, attempt]);
+
+  useEffect(() => {
+    if (status !== 'ready' || !nextPage) return;
     const controller = new AbortController();
     const timer = setTimeout(() => {
-      fetch(next, { signal: controller.signal }).then(result => result.body?.cancel()).catch(() => {});
+      resolvePagePreviewUrl({ episodeId, docIndex, pageNumber: nextPage, fit: true, rotation: nextRotation })
+        .then(url => {
+          if (!url.startsWith('blob:')) {
+            fetch(url, { signal: controller.signal }).then(result => result.body?.cancel()).catch(() => {});
+          }
+        })
+        .catch(() => {});
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [status, next]);
+  }, [status, episodeId, docIndex, nextPage, nextRotation]);
 
   return (
     <div className="page-sheet" aria-busy={status === 'loading'}>
@@ -458,25 +484,19 @@ function EvidenceImage({ src, next, page, zoomed }) {
           <button type="button" onClick={() => { setStatus('loading'); setAttempt(attempt + 1); }}>Coba lagi</button>
         </div>
       )}
-      <img
-        key={attempt}
-        className={zoomed ? 'zoomed' : ''}
-        hidden={status !== 'ready'}
-        src={src + (attempt ? (src.includes('?') ? '&' : '?') + 'retry=' + attempt : '')}
-        onLoad={() => setStatus('ready')}
-        onError={() => setStatus('error')}
-        alt={'Halaman ' + page + ' dari berkas PDF aktif'}
-      />
+      {resolvedSrc && (
+        <img
+          key={attempt}
+          className={zoomed ? 'zoomed' : ''}
+          hidden={status !== 'ready'}
+          src={resolvedSrc}
+          onLoad={() => setStatus('ready')}
+          onError={() => setStatus('error')}
+          alt={'Halaman ' + page + ' dari berkas PDF aktif'}
+        />
+      )}
     </div>
   );
-}
-
-function pageUrlQuery(fit, rotation) {
-  const params = new URLSearchParams();
-  if (fit) params.set('size', 'fit');
-  if (rotation) params.set('rot', String(rotation));
-  const query = params.toString();
-  return query ? '?' + query : '';
 }
 
 function EvidenceViewer({ episode, file, page, setProof, zoomed, setZoomed, removeDocument, busy }) {
@@ -485,10 +505,10 @@ function EvidenceViewer({ episode, file, page, setProof, zoomed, setZoomed, remo
   const detectedRot = pageObj?.rotation || 0;
   const [rotation, setRotation] = useState(detectedRot);
   useEffect(() => { setRotation(detectedRot); }, [file, page, detectedRot]);
-  const pageUrl = '/api/episodes/' + episode.id + '/pages/' + doc.index + '/';
-  const src = pageUrl + page + pageUrlQuery(!zoomed, rotation);
+  const previewKey = `${episode.id}:${doc.index}:${page}:${!zoomed}:${rotation}`;
   const nextObj = doc.pages.find(item => item.number === page + 1);
-  const next = !zoomed && page < doc.pages.length ? pageUrl + (page + 1) + pageUrlQuery(true, nextObj?.rotation || 0) : '';
+  const nextPage = !zoomed && page < doc.pages.length ? page + 1 : 0;
+  const nextRotation = nextObj?.rotation || 0;
   const readStatus = pageObj?.ocr ? 'OCR' : pageObj?.read ? 'Teks asli' : 'Belum terbaca';
   const docSelectId = useId();
   const jumpSelectId = useId();
@@ -549,7 +569,17 @@ function EvidenceViewer({ episode, file, page, setProof, zoomed, setZoomed, remo
       </div>
 
       <div className="viewer-stage">
-        <EvidenceImage key={src} src={src} next={next} page={page} zoomed={zoomed} />
+        <EvidenceImage
+          key={previewKey}
+          episodeId={episode.id}
+          docIndex={doc.index}
+          page={page}
+          nextPage={nextPage}
+          nextRotation={nextRotation}
+          fit={!zoomed}
+          rotation={rotation}
+          zoomed={zoomed}
+        />
       </div>
     </aside>
   );
