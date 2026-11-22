@@ -1,0 +1,3317 @@
+{
+  "version": 4,
+  "rules": [
+    {
+      "id": "JKN-DOC-07",
+      "title": "KELOMPOK KASUS GAGAL NAPAS (ICD-10: J96.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "pH Keasaman Darah",
+          "dataType": "Float",
+          "extraction": "pH\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Asidosis jika pH < 7.35; Alkalosis jika pH > 7.45. Digunakan untuk penentuan status kompensasi akut/kronik."
+        },
+        {
+          "name": "PaO2 Tekanan Parsial O2",
+          "dataType": "Float",
+          "extraction": "p?a?O2\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|%?)",
+          "validation": "Tekanan parsial Oksigen. Hipoksemia jika PaO2 < 60 mmHg."
+        },
+        {
+          "name": "PaCO2 Tekanan Parsial CO2",
+          "dataType": "Float",
+          "extraction": "p?a?CO2\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|%?)",
+          "validation": "Tekanan parsial Karbondioksida. Hiperkapnia jika PaCO2 > 50 mmHg."
+        },
+        {
+          "name": "HCO3 Bikarbonat Darah",
+          "dataType": "Float",
+          "extraction": "HCO3\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar bikarbonat serum. Digunakan untuk membedakan asidosis respiratorik dan metabolik."
+        },
+        {
+          "name": "SaO2 / SpO2 Saturasi Oksigen",
+          "dataType": "Float",
+          "extraction": "(?:SaO2|SpO2)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Saturasi oksigen darah arteri atau kapiler perifer. Normal >= 95%, kritis < 90%."
+        },
+        {
+          "name": "FiO2 Fraksi Inspirasi O2",
+          "dataType": "Float",
+          "extraction": "FiO2\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Fraksi oksigen yang dihirup. Udara bebas = 0.21 (21%). Jika persentase (cth: 40%), bagi dengan 100."
+        },
+        {
+          "name": "PaO2 / FiO2 Ratio Rasio Oksigenasi",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: PaO2 / FiO2",
+          "validation": "Rasio indeks oksigenasi. Jika Rasio < 300 -> Gagal Napas Akut (J96.0) sah secara klinis."
+        },
+        {
+          "name": "Frekuensi Napas Respiratory Rate",
+          "dataType": "Int",
+          "extraction": "(?:RR|Respiratory\\s*Rate|Napas)\\s*[:=]\\s*([0-9]+)\\s*(?:x/menit|/menit|pm|)",
+          "validation": "Takipnea jika RR > 24 x/menit pada dewasa. Kriteria gagal napas jika RR > 30 x/menit atau < 8 x/menit."
+        },
+        {
+          "name": "Flow Oksigen Laju Aliran Oksigen",
+          "dataType": "Float",
+          "extraction": "(?:Flow|Aliran)\\s*[:=]\\s*([0-9.]+)\\s*(?:Lpm|L/menit|L|)",
+          "validation": "Laju aliran oksigen dalam Liter per menit (Lpm)."
+        },
+        {
+          "name": "Jenis Alat Oksigen Kategori Alat",
+          "dataType": "String",
+          "extraction": "(?:Alat|Oksigen|Alat\\s*Bantu)\\s*[:=]\\s*(Nasal\\s*Kanul|Simple\\s*Mask|NRM|Rebreathing|CPAP|Ventilator|BiPAP|HFNC)",
+          "validation": "Kategori alat bantu napas: non-invasif (nasal kanul, NRM, HFNC) atau invasif (ventilator mekanis)."
+        },
+        {
+          "name": "Durasi Oksigen Pemakaian Alat",
+          "dataType": "Int",
+          "extraction": "(?:Durasi|Lama|Waktu)\\s*[:=]\\s*([0-9.]+)\\s*(?:jam|hari)",
+          "validation": "Durasi penggunaan oksigen/ventilator selama perawatan rumah sakit."
+        },
+        {
+          "name": "Klasifikasi Hipoksemik / Hiperkapnik",
+          "dataType": "String",
+          "extraction": "Kalkulasi berdasarkan nilai PaO2 dan PaCO2",
+          "validation": "• Tipe I (Hipoksemik): PaO2 < 60 mmHg dengan PaCO2 normal/rendah. • Tipe II (Hiperkapnik): PaCO2 > 50 mmHg."
+        },
+        {
+          "name": "Kompensasi Akut / Kronik / Terkompensasi",
+          "dataType": "String",
+          "extraction": "Kalkulasi berdasarkan pH, PaCO2, dan HCO3",
+          "validation": "Menilai kompensasi asam basa ginjal-paru (akut, subakut, kronik terkompensasi)."
+        },
+        {
+          "name": "Kategori Asidosis Respiratorik vs Metabolik",
+          "dataType": "String",
+          "extraction": "Kalkulasi berdasarkan pH dan HCO3/PaCO2",
+          "validation": "• Respiratorik: Masalah utama pada pCO2 tinggi. • Metabolik: Masalah utama pada HCO3 rendah."
+        },
+        {
+          "name": "Korelasi Terapi Pre vs Post AGD",
+          "dataType": "String",
+          "extraction": "Perbandingan data hasil AGD berurutan",
+          "validation": "Membandingkan nilai pH, pO2, pCO2 sebelum dan sesudah intervensi oksigenasi/ventilasi."
+        },
+        {
+          "name": "pH",
+          "dataType": "Float",
+          "extraction": "pH\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Asidosis jika pH < 7.35; Alkalosis jika pH > 7.45."
+        },
+        {
+          "name": "PaO2",
+          "dataType": "Float",
+          "extraction": "p?a?O2\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|)",
+          "validation": "Tekanan parsial Oksigen. Hipoksemia jika PaO2 < 60 mmHg."
+        },
+        {
+          "name": "PaCO2",
+          "dataType": "Float",
+          "extraction": "p?a?CO2\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|)",
+          "validation": "Tekanan parsial CO2. Hiperkapnia jika PaCO2 > 50 mmHg."
+        },
+        {
+          "name": "HCO3",
+          "dataType": "Float",
+          "extraction": "HCO3\\s*[:=]\\s*([0-9.]+)\\s*(?:mEq/L|mmol/L|)",
+          "validation": "Bikarbonat. Digunakan untuk menilai kompensasi ginjal."
+        },
+        {
+          "name": "SaO2 / SpO2",
+          "dataType": "Float",
+          "extraction": "(?:SaO2|SpO2|Saturasi)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Saturasi oksigen. Nilai normal > 95%. Gagal napas jika < 91%."
+        },
+        {
+          "name": "FiO2",
+          "dataType": "Float",
+          "extraction": "FiO2\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Fraksi Oksigen. Jika dalam % (misal 40%), otomatis bagi 100: 0.40. Default udara bebas: 0.21."
+        },
+        {
+          "name": "Rasio PaO2/FiO2",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [PaO2] / [FiO2]",
+          "validation": "Gagal napas akut jika rasio < 300 (ALI) atau < 200 (ARDS) menurut kriteria klinis."
+        },
+        {
+          "name": "Frekuensi Napas (RR)",
+          "dataType": "Int",
+          "extraction": "(?:RR|respiratory rate|napas)\\s*[:=]\\s*([0-9]+)\\s*(?:x/menit|/mnt|pm|)",
+          "validation": "Takipnea jika > 24 x/menit pada dewasa (asfiksia/gawat napas)."
+        },
+        {
+          "name": "Flow Oksigen",
+          "dataType": "Float",
+          "extraction": "(?:flow|aliran)\\s*(?:O2|oksigen)\\s*[:=]\\s*([0-9.]+)\\s*(?:LPM|L/m|)",
+          "validation": "Jumlah liter aliran oksigen per menit."
+        },
+        {
+          "name": "Jenis Alat Oksigen",
+          "dataType": "String",
+          "extraction": "(?:nasal canula|simple mask|NRM|rebreathing|CPAP|ventilator|HFNC)",
+          "validation": "Menentukan kompleksitas terapi & kelayakan resource billing."
+        },
+        {
+          "name": "Durasi Alat",
+          "dataType": "Float",
+          "extraction": "(?:durasi|lama)\\s*(?:penggunaan|terpasang)\\s*[:=]\\s*([0-9.]+)\\s*(?:hari|jam)",
+          "validation": "Waktu pemakaian alat bantu napas."
+        },
+        {
+          "name": "Klasifikasi",
+          "dataType": "String",
+          "extraction": "Logika: jika PaCO2 > 50 -> Hiperkapnik; jika PaCO2 <= 50 & PaO2 < 60 -> Hipoksemik",
+          "validation": "Menentukan sub-kode ICD-10 yang tepat (J96.01 vs J96.02)."
+        },
+        {
+          "name": "Kompensasi",
+          "dataType": "String",
+          "extraction": "Logika: jika pH < 7.35 & HCO3 normal -> Akut; jika pH normal/borderline & HCO3 tinggi -> Kronik",
+          "validation": "Menentukan status gagal napas akut atau kronik."
+        },
+        {
+          "name": "Asidosis tipe",
+          "dataType": "String",
+          "extraction": "Logika: jika pCO2 tinggi -> Respiratorik; jika HCO3 rendah -> Metabolik",
+          "validation": "Jika Asidosis Respiratorik, dilarang double coding E87.29, wajib bundle ke J96.02."
+        },
+        {
+          "name": "Korelasi Terapi",
+          "dataType": "Boolean",
+          "extraction": "Verifikasi nilai SpO2/PaO2 sebelum vs sesudah inisiasi oksigen tinggi/ventilator",
+          "validation": "Menilai efektivitas terapi & validitas keaslian rekam medis."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-01",
+      "title": "KELOMPOK KASUS SEPSIS ANAK / NEONATUS (ICD-10: A41.9 / P36.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Suhu Temperatur",
+          "dataType": "Float",
+          "extraction": "Suhu\\s*[:=]\\s*([0-9.]+)\\s*°?C?",
+          "validation": "Demam jika > 38.5°C; Hipotermia jika < 36.0°C. Kriteria wajib SIRS."
+        },
+        {
+          "name": "Heart Rate Denyut Jantung",
+          "dataType": "Int",
+          "extraction": "(?:HR|Nadi|Heart\\s*Rate)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Takikardia/Bradikardia sesuai batas usia anak (PNPK Sepsis Anak)."
+        },
+        {
+          "name": "Respiratory Rate Napas",
+          "dataType": "Int",
+          "extraction": "(?:RR|Respiratory\\s*Rate)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Takipnea sesuai batas usia anak (PNPK Sepsis Anak)."
+        },
+        {
+          "name": "Leukosit Sel Darah Putih",
+          "dataType": "Float",
+          "extraction": "Leukosit\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Leukositosis/Leukopenia atau > 10% batang (Kriteria wajib SIRS)."
+        },
+        {
+          "name": "Trombosit Platelet",
+          "dataType": "Float",
+          "extraction": "Trombosit\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Trombositopenia jika < 150.000 /uL. Indikator disfungsi hematologi."
+        },
+        {
+          "name": "Laktat Asam Laktat",
+          "dataType": "Float",
+          "extraction": "Laktat\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Peningkatan laktat > 2.0 mmol/L menandakan hipoperfusi jaringan."
+        },
+        {
+          "name": "Tekanan Darah / MAP Mean Arterial Pressure",
+          "dataType": "Float",
+          "extraction": "(?:TD|MAP|Tekanan)\\s*[:=]\\s*([0-9/.]+)",
+          "validation": "Hipotensi jika MAP di bawah persentil ke-5 sesuai umur (Syok Septik)."
+        },
+        {
+          "name": "CRT Capillary Refill Time",
+          "dataType": "Float",
+          "extraction": "CRT\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Abnormal jika CRT > 2 detik (Tanda klinis syok septik)."
+        },
+        {
+          "name": "Diuresis Urin Output",
+          "dataType": "Float",
+          "extraction": "Diuresis\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Oliguria jika urine < 0.5 mL/kg/jam (gangguan fungsi ginjal)."
+        },
+        {
+          "name": "GCS / Kesadaran Glasgow Coma Scale",
+          "dataType": "Int",
+          "extraction": "GCS\\s*([0-9]+)",
+          "validation": "GCS < 15 atau penurunan kesadaran akut (disfungsi neurologis)."
+        },
+        {
+          "name": "Skor SIRS Systemic Inflammatory Response",
+          "dataType": "Int",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "SIRS jika terpenuhi >= 2 dari 4 kriteria (salah satu wajib Suhu atau Leukosit)."
+        },
+        {
+          "name": "Skor Disfungsi Organ PELOD-2 Score",
+          "dataType": "Int",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Skor PELOD-2 untuk derajat keparahan disfungsi organ anak."
+        },
+        {
+          "name": "Dosis Antibiotik BB Based Dosing",
+          "dataType": "Float",
+          "extraction": "Dosis berdasarkan BB pasien",
+          "validation": "Sistem memverifikasi kesesuaian dosis obat terhadap berat badan anak (kg)."
+        },
+        {
+          "name": "Suhu",
+          "dataType": "Float",
+          "extraction": "(?:Suhu|temp|T)\\s*[:=]\\s*([0-9.]+)\\s*°?C?",
+          "validation": "SIRS terpenuhi jika < 36°C atau > 38.5°C."
+        },
+        {
+          "name": "Heart Rate",
+          "dataType": "Int",
+          "extraction": "(?:HR|Nadi|pulse)\\s*[:=]\\s*([0-9]+)\\s*(?:bpm|x/mnt|)",
+          "validation": "Takikardia/Bradikardia berdasarkan tabel batas usia anak di PNPK."
+        },
+        {
+          "name": "Respiratory Rate",
+          "dataType": "Int",
+          "extraction": "(?:RR|Napas|resp)\\s*[:=]\\s*([0-9]+)\\s*(?:x/mnt|)",
+          "validation": "Takipnea berdasarkan tabel batas usia anak di PNPK Sepsis Anak."
+        },
+        {
+          "name": "Leukosit",
+          "dataType": "Float",
+          "extraction": "(?:Leukosit|WBC)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Tinggi/rendah berdasarkan batas usia. Atau jika ada > 10% band/sel muda."
+        },
+        {
+          "name": "Trombosit",
+          "dataType": "Float",
+          "extraction": "(?:Trombosit|PLT)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Trombositopenia jika < 150.000/uL (bukti disfungsi hematologi)."
+        },
+        {
+          "name": "Laktat",
+          "dataType": "Float",
+          "extraction": "(?:Laktat|Lactate)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Penanda hipoperfusi jaringan jika > 2.0 mmol/L."
+        },
+        {
+          "name": "MAP",
+          "dataType": "Float",
+          "extraction": "MAP\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|)",
+          "validation": "Tekanan Arteri Rata-rata. Rendah menunjukkan syok distributif."
+        },
+        {
+          "name": "CRT",
+          "dataType": "Float",
+          "extraction": "CRT\\s*[:=]\\s*([0-9.]+)\\s*(?:detik|det|sec|)",
+          "validation": "Capillary Refill Time. Syok jika > 2 detik."
+        },
+        {
+          "name": "Diuresis",
+          "dataType": "Float",
+          "extraction": "Diuresis\\s*[:=]\\s*([0-9.]+)\\s*ml/kg/jam",
+          "validation": "Oliguria jika < 1.0 ml/kg/jam (neonatus) atau < 0.5 ml/kg/jam (anak)."
+        },
+        {
+          "name": "GCS",
+          "dataType": "Int",
+          "extraction": "GCS\\s*[:=]\\s*([0-9]+)",
+          "validation": "Penurunan kesadaran (disfungsi SSP) jika GCS < 15 atau somnolen."
+        },
+        {
+          "name": "Jumlah SIRS",
+          "dataType": "Int",
+          "extraction": "Kalkulasi: hitung kriteria SIRS yang bernilai TRUE (0 s.d. 4)",
+          "validation": "Minimal 2 kriteria SIRS terpenuhi (salah satu wajib Suhu atau Leukosit)."
+        },
+        {
+          "name": "Skor Disfungsi",
+          "dataType": "Int",
+          "extraction": "Sesuai skor PELOD-2 atau IPSCC di lembar rekam medis",
+          "validation": "Membuktikan adanya Sepsis Berat (*Severe Sepsis*) secara legal."
+        },
+        {
+          "name": "Dosis Antibiotik",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [Dosis Obat] / [Berat Badan]",
+          "validation": "Kesesuaian dosis antibiotik empiris/definitif sesuai PNPK Sepsis Anak."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-02",
+      "title": "KELOMPOK KASUS HIPERBILIRUBINEMIA NEONATAL (ICD-10: P59.9)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Bilirubin Total/Direk Kadar Bilirubin",
+          "dataType": "Float",
+          "extraction": "Bilirubin\\s*(?:Total|Direk)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar bilirubin serum. Bilirubin direk > 20% total menunjukkan kolestasis."
+        },
+        {
+          "name": "Usia Bayi (Jam) Age in Hours",
+          "dataType": "Int",
+          "extraction": "Usia\\s*([0-9]+)\\s*jam",
+          "validation": "Usia bayi dalam satuan jam saat pemeriksaan darah dilakukan."
+        },
+        {
+          "name": "Usia Gestasi Kehamilan",
+          "dataType": "Int",
+          "extraction": "(?:Gestasi|Masa\\s*Kehamilan)\\s*[:=]\\s*([0-9]+)\\s*minggu",
+          "validation": "Bayi cukup bulan (>= 37 minggu) atau kurang bulan (< 37 minggu)."
+        },
+        {
+          "name": "Berat Lahir Birth Weight",
+          "dataType": "Int",
+          "extraction": "(?:BB\\s*Lahir|BBL|Berat\\s*Lahir)\\s*[:=]\\s*([0-9]+)\\s*gram",
+          "validation": "Klasifikasi BBLR (< 2500g), BBLSR (< 1500g), BBLASR (< 1000g)."
+        },
+        {
+          "name": "Faktor Risiko Neurotoksisitas Risk Factors",
+          "dataType": "String",
+          "extraction": "(?:Faktor\\s*Risiko|Risiko)\\s*[:=]\\s*(.*)",
+          "validation": "Meliputi asfiksia, letargi, sepsis, asidosis, atau defisiensi G6PD."
+        },
+        {
+          "name": "Plotting Kurva Kurva Bhutani / AAP",
+          "dataType": "String",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Memetakan nilai bilirubin terhadap usia bayi dalam jam pada kurva Bhutani."
+        },
+        {
+          "name": "Ambang Fototerapi Phototherapy Threshold",
+          "dataType": "Float",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Batas kadar bilirubin untuk memulai fototerapi sesuai usia gestasi & risiko."
+        },
+        {
+          "name": "Ambang Transfusi Tukar Exchange Transfusion",
+          "dataType": "Float",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Batas kadar bilirubin untuk dilakukan transfusi tukar segera (emergency)."
+        },
+        {
+          "name": "Penurunan Bilirubin Terapi Respon",
+          "dataType": "Float",
+          "extraction": "Selisih bilirubin serial",
+          "validation": "Menilai keefektifan fototerapi: target penurunan 1-2 mg/dL dalam 4-6 jam."
+        },
+        {
+          "name": "Bilirubin Total",
+          "dataType": "Float",
+          "extraction": "Bilirubin\\s*Total\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar bilirubin total dalam mg/dL."
+        },
+        {
+          "name": "Bilirubin Direk",
+          "dataType": "Float",
+          "extraction": "Bilirubin\\s*Direk\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Peningkatan direk menunjukkan kolestasis."
+        },
+        {
+          "name": "Usia Bayi (Jam)",
+          "dataType": "Int",
+          "extraction": "Usia\\s*([0-9]+)\\s*jam",
+          "validation": "Sangat krusial untuk plotting kurva fototerapi Bhutani."
+        },
+        {
+          "name": "Usia Gestasi",
+          "dataType": "Int",
+          "extraction": "Gestasi\\s*([0-9]+)\\s*minggu",
+          "validation": "Kurva fototerapi dibedakan berdasarkan usia gestasi (>= 38 mgg atau < 38 mgg)."
+        },
+        {
+          "name": "Berat Lahir",
+          "dataType": "Int",
+          "extraction": "(?:BB\\s*Lahir|BBL)\\s*[:=]\\s*([0-9]+)\\s*gr",
+          "validation": "Menentukan klasifikasi BBLR/BBLSR yang memengaruhi faktor risiko."
+        },
+        {
+          "name": "Faktor Risiko",
+          "dataType": "Boolean",
+          "extraction": "(?:asfiksia|g6pd|sepsis|asidosis|hipoalbumin)",
+          "validation": "Kondisi neurotoksisitas yang menurunkan ambang batas fototerapi."
+        },
+        {
+          "name": "Plot Bilirubin",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi: bandingkan [Bilirubin Total] pada [Usia Jam] di kurva AAP",
+          "validation": "Memastikan kadar bilirubin berada di area High/High-Intermediate Risk."
+        },
+        {
+          "name": "Ambang Fototerapi",
+          "dataType": "Float",
+          "extraction": "Nilai batas kadar bilirubin untuk rekomendasi fototerapi",
+          "validation": "Verifikasi kelayakan klaim tindakan fototerapi (99.30)."
+        },
+        {
+          "name": "Ambang Transfusi",
+          "dataType": "Float",
+          "extraction": "Nilai batas kadar bilirubin untuk rekomendasi transfusi tukar",
+          "validation": "Kelayakan tindakan Transfusi Tukar (99.01)."
+        },
+        {
+          "name": "Penurunan Bilirubin",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [Bilirubin Awal] - [Bilirubin Akhir]",
+          "validation": "Menilai responsivitas klinis terhadap durasi fototerapi."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-04",
+      "title": "KELOMPOK KASUS ASFIKSIA NEONATORUM (ICD-10: P21.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Apgar Menit ke-1 Apgar Score 1m",
+          "dataType": "Int",
+          "extraction": "Apgar\\s*([0-9]+)\\s*/\\s*10",
+          "validation": "Menilai derajat depresi pernapasan awal setelah lahir."
+        },
+        {
+          "name": "Apgar Menit ke-5 Apgar Score 5m",
+          "dataType": "Int",
+          "extraction": "Apgar.*?menit\\s*5\\s*[:=]\\s*([0-9]+)",
+          "validation": "Menilai respon resusitasi. Skor <= 3 menunjukkan asfiksia berat."
+        },
+        {
+          "name": "Apgar Menit ke-10 Apgar Score 10m",
+          "dataType": "Int",
+          "extraction": "Apgar.*?menit\\s*10\\s*[:=]\\s*([0-9]+)",
+          "validation": "Digunakan untuk evaluasi prognosis dan asfiksia menetap."
+        },
+        {
+          "name": "Komponen Apgar Skor Detail",
+          "dataType": "String",
+          "extraction": "(?:Appearance|Pulse|Grimace|Activity|Respiration)\\s*[:=]\\s*([0-2])",
+          "validation": "Detail 5 tanda klinis (Warna kulit, Denyut jantung, Refleks, Tonus otot, Napas)."
+        },
+        {
+          "name": "Durasi VTP/Resusitasi VTP Duration",
+          "dataType": "Int",
+          "extraction": "(?:VTP|Resusitasi)\\s*[:=]\\s*([0-9.]+)\\s*menit",
+          "validation": "Durasi pemberian Ventilasi Tekanan Positif atau resusitasi aktif."
+        },
+        {
+          "name": "pH Darah Tali Pusat Cord Blood pH",
+          "dataType": "Float",
+          "extraction": "(?:pH\\s*Tali\\s*Pusat|Arteri\\s*pH)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Asidosis berat jika pH darah tali pusat < 7.00."
+        },
+        {
+          "name": "Base Deficit Keseimbangan Basa",
+          "dataType": "Float",
+          "extraction": "(?:Base\\s*Deficit|BE)\\s*[:=]\\s*([0-9.-]+)",
+          "validation": "Kadar Base Deficit > 12 mmol/L mengonfirmasi asfiksia metabolik berat."
+        },
+        {
+          "name": "Klasifikasi P21 Severe vs Mild/Moderate",
+          "dataType": "String",
+          "extraction": "Kalkulasi otomatis dari skor Apgar",
+          "validation": "• P21.0 (Asfiksia Berat): Apgar menit ke-5 <= 3. • P21.1 (Asfiksia Sedang/Ringan): Apgar menit ke-5: 4-7."
+        },
+        {
+          "name": "Apgar Menit 1",
+          "dataType": "Int",
+          "extraction": "Apgar\\s*(?:menit\\s*1|1\\s*m)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Menilai derajat asfiksia saat lahir."
+        },
+        {
+          "name": "Apgar Menit 5",
+          "dataType": "Int",
+          "extraction": "Apgar\\s*(?:menit\\s*5|5\\s*m)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Sangat penting sebagai indikator pemulihan / cedera neurologis."
+        },
+        {
+          "name": "Apgar Menit 10",
+          "dataType": "Int",
+          "extraction": "Apgar\\s*(?:menit\\s*10|10\\s*m)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Diperlukan jika nilai menit ke-5 masih di bawah 7."
+        },
+        {
+          "name": "Komponen APGAR",
+          "dataType": "String",
+          "extraction": "A\\s*([0-2])\\s*P\\s*([0-2])\\s*G\\s*([0-2])\\s*A\\s*([0-2])\\s*R\\s*([0-2])",
+          "validation": "Pencatatan rinci Appearance, Pulse, Grimace, Activity, Respiration."
+        },
+        {
+          "name": "Durasi Resusitasi",
+          "dataType": "Int",
+          "extraction": "(?:VTP|Resusitasi|balon)\\s*([0-9]+)\\s*(?:menit|mnt)",
+          "validation": "Durasi ventilasi tekanan positif atau intubasi di kamar bersalin."
+        },
+        {
+          "name": "pH Tali Pusat",
+          "dataType": "Float",
+          "extraction": "pH\\s*tali\\s*pusat\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Asidemia berat jika pH < 7.00 pada darah arteri tali pusat."
+        },
+        {
+          "name": "Base Deficit",
+          "dataType": "Float",
+          "extraction": "(?:Base\\s*Deficit|BD)\\s*[:=]\\s*([0-9.-]+)",
+          "validation": "Asidosis metabolik berat jika BD >= 12 mmol/L."
+        },
+        {
+          "name": "Klasifikasi Kode",
+          "dataType": "String",
+          "extraction": "Logika: jika Apgar m5: 0-3 -> P21.0 (Berat); jika 4-7 -> P21.1 (Sedang/Ringan)",
+          "validation": "Mencegah kesalahan upcoding glosarium koding asfiksia berat (P21.0)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-01",
+      "title": "KELOMPOK KASUS KETUBAN PECAH DINI (ICD-10: O42.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Jam Pecah Ketuban Onset KPD",
+          "dataType": "DateTime",
+          "extraction": "(?:Pecah\\s*Ketuban|KPD|Jam\\s*Pecah)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu terjadinya pecah ketuban berdasarkan anamnesis/laporan bidan."
+        },
+        {
+          "name": "Jam Mulai Persalinan Onset Labor",
+          "dataType": "DateTime",
+          "extraction": "(?:Mulai\\s*Kenceng|Inpartu|Onset\\s*Persalinan)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu dimulainya fase aktif persalinan (inpartu)."
+        },
+        {
+          "name": "Selisih Waktu Interval KPD-Partus",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: Jam Persalinan - Jam Pecah",
+          "validation": "Selisih waktu dalam satuan jam untuk memilah klasifikasi koding JKN."
+        },
+        {
+          "name": "Klasifikasi KPD Koding O42",
+          "dataType": "String",
+          "extraction": "Kalkulasi berdasarkan selisih waktu",
+          "validation": "• O42.0: Selisih < 24 jam. • O42.1: Selisih >= 24 jam."
+        },
+        {
+          "name": "Usia Kehamilan Gestational Age",
+          "dataType": "Int",
+          "extraction": "Usia\\s*Kehamilan\\s*[:=]\\s*([0-9]+)\\s*minggu",
+          "validation": "Menentukan status preterm (< 37 minggu) atau term (>= 37 minggu)."
+        },
+        {
+          "name": "Durasi Tokolitik Tocolysis Duration",
+          "dataType": "Float",
+          "extraction": "(?:Tokolitik|Nifedipin|Duvadilan)\\s*[:=]\\s*([0-9.]+)\\s*(?:jam|hari)",
+          "validation": "Durasi pemberian terapi penunda persalinan pada kasus preterm KPD. Rule: Mengonfirmasi kode O42.2 (KPD persalinan ditunda dengan terapi)."
+        },
+        {
+          "name": "Jam Pecah Ketuban",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam dari anamnesis rekam medis",
+          "validation": "Waktu terjadinya pecah selaput ketuban."
+        },
+        {
+          "name": "Jam Mulai Bersalin",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam pembukaan serviks aktif/partus",
+          "validation": "Onset persalinan (kontraksi teratur & dilatasi serviks)."
+        },
+        {
+          "name": "Selisih Waktu (Jam)",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [Jam Mulai] - [Jam Pecah] dalam satuan jam",
+          "validation": "Menghitung durasi ketuban pecah sebelum persalinan dimulai."
+        },
+        {
+          "name": "Klasifikasi KPD",
+          "dataType": "String",
+          "extraction": "Logika: jika selisih < 24 jam -> O42.0; jika selisih >= 24 jam -> O42.1",
+          "validation": "Memastikan ketepatan pemilihan digit keempat sesuai standar JKN."
+        },
+        {
+          "name": "Usia Kehamilan",
+          "dataType": "Int",
+          "extraction": "(?:Usia\\s*Hamil|UK)\\s*([0-9]+)\\s*minggu",
+          "validation": "KPD preterm (< 37 minggu) memiliki risiko komplikasi lebih tinggi."
+        },
+        {
+          "name": "Durasi Tokolitik",
+          "dataType": "Float",
+          "extraction": "Tokolitik\\s*([0-9.]+)\\s*jam",
+          "validation": "Pemberian obat penunda persalinan (nifedipin/isoxsuprine) untuk pematangan paru."
+        },
+        {
+          "name": "Penentuan Kode",
+          "dataType": "String",
+          "extraction": "Logika: jika terpasang tokolitik -> O42.2 (persalinan ditunda dengan terapi)",
+          "validation": "Mengunci kode O42.2 yang memiliki bobot klaim sesuai tatalaksana medis."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-02",
+      "title": "KELOMPOK KASUS TINDAKAN ESWL (ICD-9-CM: 98.51)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Ukuran Batu Stone Size",
+          "dataType": "Float",
+          "extraction": "(?:Ukuran\\s*Batu|Diameter)\\s*[:=]\\s*([0-9.]+)\\s*(?:cm|mm)",
+          "validation": "Ukuran dimensi terbesar batu saluran kemih dalam cm/mm."
+        },
+        {
+          "name": "Konversi Satuan cm ke mm",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: cm * 10",
+          "validation": "Sistem otomatis mengonversi satuan cm ke mm untuk standardisasi database."
+        },
+        {
+          "name": "Validasi Ukuran JKN ESWL Eligibility",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi: Ukuran <= 20 mm",
+          "validation": "Rule: Berdasarkan Panduan Verifikasi JKN Edisi 2, ESWL dijamin untuk batu < 20 mm (< 2 cm)."
+        },
+        {
+          "name": "Jumlah Batu Stone Count",
+          "dataType": "Int",
+          "extraction": "(?:Jumlah\\s*Batu|Batu\\s*Multiple)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Jumlah batu yang terdeteksi pada pemeriksaan USG/BNO."
+        },
+        {
+          "name": "Lokasi Batu Anatomis",
+          "dataType": "String",
+          "extraction": "(?:Lokasi|Letak)\\s*[:=]\\s*(Ginjal|Ureter|Calyx|Pole|Kandung\\s*Kemih)",
+          "validation": "Posisi batu: ginjal (pole superior, medius, inferior) atau ureter (proksimal, medius, distal)."
+        },
+        {
+          "name": "Penolakan Calyx Inferior Omit Rule",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis dari Lokasi",
+          "validation": "Excludes: ESWL pada batu pole bawah / calyx inferior ginjal tidak dijamin karena risiko klirens fragmen rendah. AI otomatis menolak klaim jika terdeteksi letak di calyx inferior."
+        },
+        {
+          "name": "Densitas Batu (HU) Hounsfield Unit",
+          "dataType": "Int",
+          "extraction": "(?:Densitas|HU|Hounsfield)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Kepadatan batu pada CT non-kontras. Batu > 1000 HU dinilai keras dan kurang responsif terhadap ESWL."
+        },
+        {
+          "name": "Fungsi Ginjal & Obstruksi Renal Function",
+          "dataType": "String",
+          "extraction": "(?:Hidronefrosis|Ureum|Kreatinin)\\s*[:=]\\s*(.*)",
+          "validation": "Menilai adanya komplikasi hidronefrosis atau penurunan GFR akibat sumbatan batu."
+        },
+        {
+          "name": "Ukuran Batu",
+          "dataType": "Float",
+          "extraction": "([0-9.]+)\\s*(?:cm|mm)",
+          "validation": "Ukuran dimensi terbesar batu saluran kemih."
+        },
+        {
+          "name": "Konversi mm",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: jika satuan cm -> [Ukuran Batu] * 10",
+          "validation": "Menyamakan satuan batu ke milimeter."
+        },
+        {
+          "name": "Validasi <20 mm",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika [Konversi mm] < 20.0 -> TRUE",
+          "validation": "Panduan Verifikasi JKN: ESWL ditujukan untuk batu ukuran < 2 cm / 20 mm."
+        },
+        {
+          "name": "Jumlah Batu",
+          "dataType": "Int",
+          "extraction": "(?:batu|calculus)\\s*mulitipel|tunggal|([0-9]+)\\s*buah",
+          "validation": "Batu tunggal atau multipel memengaruhi rencana penembakan ESWL."
+        },
+        {
+          "name": "Lokasi Batu",
+          "dataType": "String",
+          "extraction": "(?:ginjal|ureter|uretra|calyx\\s*superior|calyx\\s*inferior)",
+          "validation": "Lokasi spesifik penimbunan batu."
+        },
+        {
+          "name": "Calyx Inferior",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika lokasi 'calyx inferior' -> TRUE",
+          "validation": "Awas: batu di calyx inferior tidak boleh langsung ESWL tanpa justifikasi."
+        },
+        {
+          "name": "Densitas Batu (HU)",
+          "dataType": "Int",
+          "extraction": "([0-9]+)\\s*HU",
+          "validation": "Kekerasan batu dari MSCT Non-Kontras (batu > 1000 HU sulit pecah dengan ESWL)."
+        },
+        {
+          "name": "Fungsi Ginjal",
+          "dataType": "String",
+          "extraction": "(?:fungsi\\s*normal|hidronefrosis\\s*grade\\s*[1-4])",
+          "validation": "Menilai adanya obstruksi saluran kemih pasca-operasi."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-04",
+      "title": "KELOMPOK KASUS PPCM (ICD-10: O90.3)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Tanggal Persalinan Delivery Date",
+          "dataType": "Date",
+          "extraction": "(?:Tanggal\\s*Melahirkan|Salin|Partus)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu terjadinya persalinan (partus)."
+        },
+        {
+          "name": "Tanggal Masuk RS Admission Date",
+          "dataType": "Date",
+          "extraction": "(?:Tanggal\\s*Masuk|Tgl\\s*Masuk)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu pasien masuk rumah sakit untuk asuhan kardiologi."
+        },
+        {
+          "name": "Selisih Hari Nifas Postpartum Interval",
+          "dataType": "Int",
+          "extraction": "Kalkulasi: Tgl Masuk - Tgl Persalinan",
+          "validation": "Rule: Diagnosis PPCM (O90.3) sah jika selisih waktu <= 42 hari (periode nifas). Jika > 42 hari, dilarang dikode O90.3."
+        },
+        {
+          "name": "Nilai LVEF Ejection Fraction",
+          "dataType": "Float",
+          "extraction": "(?:LVEF|EF|Ejection\\s*Fraction)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Kriteria: Nilai Ejection Fraction ventrikel kiri (%). PPCM jika EF < 45% atau < 50%. Sistem mengekstrak angka dari PDF ECHO dan menyimpannya sebagai Float terstruktur."
+        },
+        {
+          "name": "Dimensi Ventrikel LVEDD",
+          "dataType": "Float",
+          "extraction": "(?:LVEDD|Dimensi\\s*LVD)\\s*[:=]\\s*([0-9.]+)\\s*(?:mm|cm)",
+          "validation": "Diameter akhir diastolik ventrikel kiri (LVEDD) > 2.7 cm/m2 (dilatasi ventrikel)."
+        },
+        {
+          "name": "Gagal Jantung ADHF Manifestasi",
+          "dataType": "Boolean",
+          "extraction": "(?:Gagal\\s*Jantung|ADHF|Congestive)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Membuktikan adanya tanda klinis edema paru, sesak napas (ortopnea), atau asites."
+        },
+        {
+          "name": "Tekanan Darah & Syok Hemodinamik",
+          "dataType": "String",
+          "extraction": "(?:TD|Syok\\s*Kardiogenik)\\s*[:=]\\s*(.*)",
+          "validation": "Mendeteksi adanya syok kardiogenik (TD sistolik < 90 mmHg, hipoperfusi) untuk klaim kode sekunder O75.1."
+        },
+        {
+          "name": "Tanggal Salin",
+          "dataType": "Date",
+          "extraction": "Ekstraksi tanggal persalinan dari riwayat obstetri",
+          "validation": "Hari kelahiran bayi."
+        },
+        {
+          "name": "Tanggal Masuk RS",
+          "dataType": "Date",
+          "extraction": "Ekstraksi tanggal masuk faskes perawatan",
+          "validation": "Awal rawat inap pasien."
+        },
+        {
+          "name": "Selisih Hari",
+          "dataType": "Int",
+          "extraction": "Kalkulasi: [Tanggal Masuk] - [Tanggal Salin]",
+          "validation": "PPCM dibatasi terjadi dalam periode nifas (maksimal 42 hari / 6 minggu)."
+        },
+        {
+          "name": "Nilai LVEF",
+          "dataType": "Float",
+          "extraction": "(?:LVEF|EF|Ejection\\s*Fraction)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Disfungsi sistolik ventrikel kiri jika LVEF < 45% atau < 50%."
+        },
+        {
+          "name": "Dimensi Ventrikel",
+          "dataType": "Float",
+          "extraction": "LVIDd\\s*[:=]\\s*([0-9.]+)\\s*mm",
+          "validation": "Dilatasi ventrikel kiri (End-Diastolic Dimension > 2.7 cm/m2)."
+        },
+        {
+          "name": "Gagal Jantung",
+          "dataType": "Boolean",
+          "extraction": "(?:orthopnea|dyspnea\\s*at\\s*rest|edema\\s*paru|ronki|S3\\s*gallop)",
+          "validation": "Gejala klinis gagal jantung kongestif (ADHF) yang progresif."
+        },
+        {
+          "name": "Status Syok",
+          "dataType": "Boolean",
+          "extraction": "(?:Syok\\s*Kardiogenik|hipotensi|akral\\s*dingin)",
+          "validation": "Penurunan perfusi jaringan dengan tekanan darah sistolik < 90 mmHg."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-06",
+      "title": "KELOMPOK KASUS ENSEFALOPATI PADA SEPSIS (ICD-10: G93.4)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "GCS Serial Glasgow Coma Scale",
+          "dataType": "List[Int]",
+          "extraction": "GCS\\s*[:=]?\\s*([0-9]+)",
+          "validation": "Pemantauan tingkat kesadaran pasien secara berkala selama rawat inap."
+        },
+        {
+          "name": "Besar Penurunan GCS Acute Drop",
+          "dataType": "Int",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Penurunan nilai GCS >= 2 poin dari baseline mengonfirmasi ensefalopati metabolik/sepsis."
+        },
+        {
+          "name": "MAP Mean Arterial Pressure",
+          "dataType": "Float",
+          "extraction": "(?:MAP|Tekanan\\s*Darah)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Digunakan untuk menilai kecukupan aliran darah (perfusi) ke otak (target MAP > 65 mmHg)."
+        },
+        {
+          "name": "Laktat Lactate",
+          "dataType": "Float",
+          "extraction": "Laktat\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Indikator hipoksia seluler sistemik dan keparahan sepsis."
+        },
+        {
+          "name": "Dosis Vasopresor Inotropik",
+          "dataType": "Float",
+          "extraction": "(?:Norepinefrin|Dopamin|Vascon)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Penggunaan obat penunjang tekanan darah. Menandakan pasien dalam syok septik berat."
+        },
+        {
+          "name": "Diuresis Urin Output",
+          "dataType": "Float",
+          "extraction": "Diuresis\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Oli-anuria sebagai bagian dari kegagalan multi-organ (MODS)."
+        },
+        {
+          "name": "Skor SOFA / qSOFA Sepsis Organ Failure",
+          "dataType": "Int",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Skor kegagalan fungsi organ. qSOFA >= 2 menandakan risiko mortalitas tinggi."
+        },
+        {
+          "name": "Waktu Konsul Saraf Neurology Consultation",
+          "dataType": "DateTime",
+          "extraction": "(?:Konsul\\s*Saraf|Neurologi|Sp.S)\\s*[:=]\\s*(.*)",
+          "validation": "Rule: Bukti tertulis lembar konsul spesialis saraf menjadi syarat validitas resources tambahan (PMK 26/2021)."
+        },
+        {
+          "name": "Korelasi Kesadaran-Sepsis Justifikasi Klinis",
+          "dataType": "String",
+          "extraction": "Membaca teks CPPT",
+          "validation": "Justifikasi klinis DPJP bahwa penurunan kesadaran murni akibat toksin sepsis, bukan stroke/cedera kepala."
+        },
+        {
+          "name": "GCS Serial",
+          "dataType": "List[Int]",
+          "extraction": "GCS\\s*E([1-4])M([1-6])V([1-6])",
+          "validation": "Pemantauan tingkat kesadaran secara berkala di CPPT."
+        },
+        {
+          "name": "Penurunan GCS",
+          "dataType": "Int",
+          "extraction": "Kalkulasi: [GCS Awal] - [GCS Terendah]",
+          "validation": "Membuktikan adanya delirium akut atau penurunan kesadaran akibat toksin."
+        },
+        {
+          "name": "MAP",
+          "dataType": "Float",
+          "extraction": "MAP\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Rendahnya MAP memperburuk perfusi serebral pada sepsis."
+        },
+        {
+          "name": "Tekanan Darah",
+          "dataType": "String",
+          "extraction": "([0-9]+)/([0-9]+)\\s*mmHg",
+          "validation": "Tekanan darah sistolik & diastolik."
+        },
+        {
+          "name": "Laktat",
+          "dataType": "Float",
+          "extraction": "Laktat\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Laktat tinggi (> 2 mmol/L) menunjukkan hipoksia seluler sistemik."
+        },
+        {
+          "name": "Dosis Vasopresor",
+          "dataType": "Float",
+          "extraction": "(?:Norepinefrin|Vascon)\\s*[:=]\\s*([0-9.]+)\\s*mcg/kg/mnt",
+          "validation": "Dosis obat penopang tekanan darah pada syok septik."
+        },
+        {
+          "name": "Diuresis",
+          "dataType": "Float",
+          "extraction": "Urine\\s*output\\s*([0-9.]+)\\s*ml/jam",
+          "validation": "Evaluasi balance cairan tubuh."
+        },
+        {
+          "name": "SOFA / qSOFA",
+          "dataType": "Int",
+          "extraction": "(?:SOFA|qSOFA)\\s*score\\s*[:=]\\s*([0-9]+)",
+          "validation": "Skor kegagalan organ. qSOFA >= 2 menandakan infeksi risiko tinggi."
+        },
+        {
+          "name": "Konsul Neurologi",
+          "dataType": "DateTime",
+          "extraction": "Tanggal & jam tercatat pada Lembar Konsultasi Saraf",
+          "validation": "Bukti nyata penggunaan resource spesialis saraf (syarat utama JKN)."
+        },
+        {
+          "name": "Korelasi Sepsis",
+          "dataType": "Boolean",
+          "extraction": "Kesesuaian timbulnya penurunan kesadaran dengan onset demam/leukositosis",
+          "validation": "Menyingkirkan stroke fokal murni sebagai penyebab penurunan kesadaran."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-08",
+      "title": "KELOMPOK KASUS PNEUMONIA (ICD-10: J18.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Suhu Aktual Temperatur",
+          "dataType": "Float",
+          "extraction": "Suhu\\s*[:=]\\s*([0-9.]+)\\s*°?C?",
+          "validation": "Demam jika suhu tubuh > 38.0°C (Kriteria KMK 514/2015)."
+        },
+        {
+          "name": "Respiratory Rate RR",
+          "dataType": "Int",
+          "extraction": "(?:RR|Respiratory\\s*Rate)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Takipnea jika RR > 24 x/menit pada dewasa (Kriteria KMK 514/2015)."
+        },
+        {
+          "name": "Heart Rate Nadi",
+          "dataType": "Int",
+          "extraction": "(?:HR|Nadi|Heart\\s*Rate)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Takikardia jika HR > 100 x/menit."
+        },
+        {
+          "name": "SpO2 Saturasi Oksigen",
+          "dataType": "Float",
+          "extraction": "(?:SpO2|Saturasi)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Menilai derajat hipoksemia. Normal >= 95%, hipoksia < 95%."
+        },
+        {
+          "name": "PaO2 / FiO2 Rasio Oksigenasi",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: pO2 / FiO2",
+          "validation": "Rasio < 250 mmHg mengonfirmasi pneumonia berat (Rekomendasi PNPK Pneumonia Dewasa)."
+        },
+        {
+          "name": "Leukosit Sel Darah Putih",
+          "dataType": "Float",
+          "extraction": "Leukosit\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Leukositosis (>10.000) atau Leukopenia (<4.500) (Kriteria KMK 514/2015)."
+        },
+        {
+          "name": "Prokalsitonin / CRP Inflammatory Marker",
+          "dataType": "Float",
+          "extraction": "(?:PCT|Prokalsitonin|CRP)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar penanda infeksi bakteri. Prokalsitonin sangat spesifik untuk prognosis HAP/VAP."
+        },
+        {
+          "name": "Skor CURB-65 Pneumonia Severity",
+          "dataType": "Int",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Skor keparahan (Confusion, Ureum, RR, Blood pressure, Usia >=65). Skor >= 2 wajib rawat inap."
+        },
+        {
+          "name": "Pneumonia Berat Kriteria IDSA/ATS",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Memenuhi 1 kriteria mayor (ventilator/syok) atau 3 kriteria minor (Confusion, Ureum tinggi, RR>=30, uremia, leukopenia, trombositopenia, hipotermia)."
+        },
+        {
+          "name": "Antibiotik Aktif Terapi & Durasi",
+          "dataType": "String",
+          "extraction": "(?:Antibiotik|Ceftriaxone|Levofloxasin)\\s*[:=]\\s*(.*)",
+          "validation": "Mengekstrak jenis dan durasi antibiotik empiris/definitif yang diberikan di rumah sakit."
+        },
+        {
+          "name": "Suhu Aktual",
+          "dataType": "Float",
+          "extraction": "Suhu\\s*[:=]\\s*([0-9.]+)\\s*°?C?",
+          "validation": "Demam tinggi jika > 38°C atau hipotermia < 35°C."
+        },
+        {
+          "name": "Respiratory Rate",
+          "dataType": "Int",
+          "extraction": "RR\\s*[:=]\\s*([0-9]+)",
+          "validation": "Takipnea jika > 30 x/menit (salah satu kriteria pneumonia berat)."
+        },
+        {
+          "name": "Heart Rate",
+          "dataType": "Int",
+          "extraction": "HR\\s*[:=]\\s*([0-9]+)",
+          "validation": "Takikardia jika > 125 x/menit."
+        },
+        {
+          "name": "SpO2",
+          "dataType": "Float",
+          "extraction": "SpO2\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Saturasi oksigen rendah (< 92%) mengindikasikan pneumonia berat."
+        },
+        {
+          "name": "PaO2/FiO2",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [PaO2] / [FiO2]",
+          "validation": "Rasio < 250 menunjukkan gangguan pertukaran gas berat."
+        },
+        {
+          "name": "Leukositosis",
+          "dataType": "Float",
+          "extraction": "Leukosit\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Leukositosis jika > 10.000/uL atau leukopenia < 4.500/uL."
+        },
+        {
+          "name": "CRP / Prokalsitonin",
+          "dataType": "Float",
+          "extraction": "(?:CRP|PCT)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Penanda inflamasi bakterial aktif."
+        },
+        {
+          "name": "CURB-65",
+          "dataType": "Int",
+          "extraction": "Kalkulasi: hitung skor CURB-65 (0 s.d. 5) untuk dewasa",
+          "validation": "Skor >= 2 direkomendasikan rawat inap; skor >= 3 pertimbangkan ICU."
+        },
+        {
+          "name": "Kriteria Berat",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika terpasang ventilator atau syok septik memerlukan vasopresor",
+          "validation": "Memenuhi kriteria pneumonia berat menurut ATS/IDSA."
+        },
+        {
+          "name": "Dosis Antibiotik",
+          "dataType": "String",
+          "extraction": "(?:Seftriakson|Levofloxacin)\\s*([0-9]+)\\s*(?:gr|mg)",
+          "validation": "Pemberian antibiotik intravena spektrum luas."
+        },
+        {
+          "name": "Respons Terapi",
+          "dataType": "Boolean",
+          "extraction": "Perbaikan klinis (suhu turun, sesak berkurang) pasca 48-72 jam antibiotik",
+          "validation": "Bukti efektivitas tatalaksana medis."
+        },
+        {
+          "name": "Kesesuaian Billing",
+          "dataType": "Boolean",
+          "extraction": "Kesesuaian antara resep antibiotik di CPPT dengan daftar obat di billing",
+          "validation": "Mencegah temuan audit selisih obat / fiktif billing."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-10",
+      "title": "KELOMPOK KASUS GLAUKOMA ABSOLUT (ICD-10: H44.5 / H44.51)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Nilai TIO Kanan/Kiri Tekanan Intraokular",
+          "dataType": "Float",
+          "extraction": "TIO\\s*(?:Kanan|Kiri|OD|OS)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar tekanan intraokular (normal 10-21 mmHg). Sangat tinggi pada glaukoma absolut (cth: > 40 mmHg)."
+        },
+        {
+          "name": "Visus Kanan/Kiri Ketajaman Penglihatan",
+          "dataType": "String",
+          "extraction": "Visus\\s*(?:Kanan|Kiri|OD|OS)\\s*[:=]\\s*([0-9/.]+|LP|NLP)",
+          "validation": "Ketajaman penglihatan mata kanan/kiri. Kebutaan total ditandai visus NLP (No Light Perception) atau LP (Light Perception) buruk."
+        },
+        {
+          "name": "LP / NLP Status Light Perception",
+          "dataType": "String",
+          "extraction": "(?:LP|NLP|Light\\s*Perception)\\s*[:=]\\s*(LP|NLP)",
+          "validation": "• NLP: Buta total permanen (tidak ada persepsi cahaya). • LP: Persepsi cahaya positif tapi proyeksi salah."
+        },
+        {
+          "name": "Ambang TIO Tinggi TIO Threshold",
+          "dataType": "Float",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Batas tekanan intraokular > 21 mmHg. Glaukoma absolut biasanya memiliki TIO sangat ekstrem (> 30 mmHg) yang menyebabkan nyeri hebat."
+        },
+        {
+          "name": "Durasi Kebutaan Blindness Duration",
+          "dataType": "String",
+          "extraction": "(?:Durasi\\s*Buta|Lama\\s*Buta)\\s*[:=]\\s*(.*)",
+          "validation": "Catatan lama waktu hilangnya penglihatan secara permanen pada rekam medis."
+        },
+        {
+          "name": "Respons Terapi TIO Terapi Respon",
+          "dataType": "String",
+          "extraction": "(?:Respons|TIO\\s*Pasca)\\s*[:=]\\s*(.*)",
+          "validation": "Mengekstrak obat penurun TIO (timolol, acetazolamide) atau tindakan operasi destruktif (eviserasi/enukleasi) untuk meringankan nyeri (blind painful eye)."
+        },
+        {
+          "name": "Nilai TIO Kanan",
+          "dataType": "Float",
+          "extraction": "(?:TIO|IOP)\\s*OD\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|)",
+          "validation": "Tekanan intraokular mata kanan (normal: 10-21 mmHg)."
+        },
+        {
+          "name": "Nilai TIO Kiri",
+          "dataType": "Float",
+          "extraction": "(?:TIO|IOP)\\s*OS\\s*[:=]\\s*([0-9.]+)\\s*(?:mmHg|)",
+          "validation": "Tekanan intraokular mata kiri."
+        },
+        {
+          "name": "Visus Kanan",
+          "dataType": "String",
+          "extraction": "V\\s*OD\\s*[:=]\\s*([0-9/a-zA-Z\\s]+)",
+          "validation": "Tajam penglihatan mata kanan."
+        },
+        {
+          "name": "Visus Kiri",
+          "dataType": "String",
+          "extraction": "V\\s*OS\\s*[:=]\\s*([0-9/a-zA-Z\\s]+)",
+          "validation": "Tajam penglihatan mata kiri."
+        },
+        {
+          "name": "LP/NLP",
+          "dataType": "String",
+          "extraction": "(?:Light\\s*Perception|No\\s*Light\\s*Perception|LP|NLP|1/\\s*infinite|0)",
+          "validation": "LP (masih melihat cahaya) atau NLP (buta total permanen/no light perception)."
+        },
+        {
+          "name": "Ambang TIO Tinggi",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika TIO > 30 mmHg -> TRUE",
+          "validation": "TIO sangat tinggi menyebabkan kerusakan total saraf optik."
+        },
+        {
+          "name": "Durasi Kebutaan",
+          "dataType": "String",
+          "extraction": "(?:buta|kehilangan\\s*visi)\\s*sejak\\s*([a-zA-Z0-9\\s]+)",
+          "validation": "Lama waktu pasien mengalami buta total."
+        },
+        {
+          "name": "Respons Terapi",
+          "dataType": "Boolean",
+          "extraction": "Evaluasi penurunan TIO pasca obat anti-glaukoma (timolol/asetazolamid)",
+          "validation": "Membuktikan efektivitas tatalaksana obat topikal/sistemik."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-12",
+      "title": "KELOMPOK KASUS SOFT TISSUE TUMOR (STT) (ICD-10: D21.- / C49.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Dimensi Tumor (PxLxT) Ukuran Massa",
+          "dataType": "String",
+          "extraction": "(?:Ukuran|Dimensi|Tumor)\\s*[:=]\\s*([0-9.]+)\\s*x\\s*([0-9.]+)\\s*x\\s*([0-9.]+)",
+          "validation": "Ukuran tiga dimensi massa tumor dalam cm/mm dari laporan USG/CT atau Patologi Anatomi."
+        },
+        {
+          "name": "Ukuran Maksimum >4 cm Max Dimension",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis dari Dimensi",
+          "validation": "Rule: Berdasarkan BA Kemenkes-BPJS 2024, ukuran terbesar tumor > 4 cm adalah salah satu syarat kelayakan rawat inap untuk tumor jinak."
+        },
+        {
+          "name": "Kedalaman Terhadap Fascia Fascial Depth",
+          "dataType": "String",
+          "extraction": "(?:Kedalaman|Fascia|Fasial)\\s*[:=]\\s*(Superficial|Deep|Bawah\\s*Fascia)",
+          "validation": "• Superficial: Tumor berada di atas fascia (kutis/subkutis). • Deep: Tumor menembus atau berada di bawah fascia. Rule (BA 2024): Tumor deep merupakan indikasi medis rawat inap sah."
+        },
+        {
+          "name": "Volume Massa Tumor Volume",
+          "dataType": "Float",
+          "extraction": "Kalkulasi volume bola/elips",
+          "validation": "Sistem menghitung perkiraan volume tumor untuk memantau progresivitas massa."
+        },
+        {
+          "name": "Keterlibatan Struktur Vital Infiltrasi Saraf/Vasa",
+          "dataType": "Boolean",
+          "extraction": "(?:Struktur\\s*Vital|Infiltrasi|Saraf|Pembuluh)\\s*[:=]\\s*(Ya|Tidak|Infiltrasi)",
+          "validation": "Rule (BA 2024): Adanya keterlibatan tumor yang meluas ke pembuluh darah utama, saraf utama, saluran napas, atau tulang merupakan indikasi rawat inap mutlak."
+        },
+        {
+          "name": "Hasil Histopatologi PA Jinak vs Ganas",
+          "dataType": "String",
+          "extraction": "(?:PA|Histopatologi|Sifat)\\s*[:=]\\s*(Jinak|Ganas|Malignant|Benign|Uncertain)",
+          "validation": "• Ganas (C49.-): Keganasan jaringan lunak (sarkoma). Otomatis layak rawat inap. • Jinak (D21.-): Tumor jinak jaringan lunak. Harus memenuhi kriteria ukuran/kedalaman untuk rawat inap."
+        },
+        {
+          "name": "Margin Operasi Surgical Margin",
+          "dataType": "String",
+          "extraction": "(?:Margin|Batas\\s*Sayatan)\\s*[:=]\\s*(Bebas|Tidak\\s*Bebas|R0|R1|R2)",
+          "validation": "Kriteria batas sayatan operasi pada spesimen PA. Margin R0 menunjukkan tumor telah terangkat bersih seluruhnya."
+        },
+        {
+          "name": "Dimensi Tumor",
+          "dataType": "String",
+          "extraction": "ukuran\\s*([0-9.]+)\\s*[xX]\\s*([0-9.]+)\\s*[xX]\\s*([0-9.]+)\\s*(?:cm|mm)",
+          "validation": "Ukuran panjang x lebar x tinggi massa tumor."
+        },
+        {
+          "name": "Ukuran Maksimum",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: ambil angka terbesar dari ketiga dimensi tumor",
+          "validation": "BA JKN 2024: salah satu syarat rawat inap tumor jinak adalah ukuran > 4 cm."
+        },
+        {
+          "name": "Kedalaman Fascia",
+          "dataType": "String",
+          "extraction": "(?:superfisial|deep|di\\s*bawah\\s*fascia|menginfiltrasi\\s*fascia)",
+          "validation": "BA JKN 2024: tumor berstatus deep (di bawah fascia) layak dirawat inap."
+        },
+        {
+          "name": "Volume Massa",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: panjang * lebar * tinggi * 0.52",
+          "validation": "Mengukur estimasi volume tumor berbentuk elips."
+        },
+        {
+          "name": "Struktur Vital",
+          "dataType": "Boolean",
+          "extraction": "(?:mengenai|menempel|infiltrasi)\\s*(?:saraf|pembuluh\\s*darah|tulang|saluran\\s*napas)",
+          "validation": "Adanya keterlibatan organ/struktur vital di sekitarnya."
+        },
+        {
+          "name": "Histopatologi",
+          "dataType": "String",
+          "extraction": "Hasil\\s*PA\\s*[:=]\\s*(?:jinak|ganas|maligna|benigna|sarkoma)",
+          "validation": "Hasil biopsi/patologi anatomi pasca eksisi."
+        },
+        {
+          "name": "Margin Operasi",
+          "dataType": "String",
+          "extraction": "margin\\s*(?:bebas\\s*tumor|tidak\\s*bebas|inkomplit|komplit)",
+          "validation": "Menilai kebersihan pengangkatan tepi sayatan tumor."
+        },
+        {
+          "name": "Jenis Pembiusan",
+          "dataType": "String",
+          "extraction": "(?:anestesi\\s*(?:umum|lokal|spinal)|general\\s*anesth(?:esia)?|narkose\\s*umum|\\bGA\\b)",
+          "validation": "Ekstraksi jenis anestesi dari lembar anestesi atau laporan operasi; interpretasi kelayakan mengikuti rule STT pengguna."
+        },
+        {
+          "name": "Kebutuhan Rekonstruksi",
+          "dataType": "Boolean",
+          "extraction": "(?:skin\\s*graft|\\bFTSG\\b|\\bSTSG\\b|flap\\s*graft|rekonstruksi)",
+          "validation": "Mendeteksi rekonstruksi/graft pasca eksisi luas."
+        },
+        {
+          "name": "Lokasi Tumor",
+          "dataType": "String",
+          "extraction": "(?:head\\s*(?:and|&)\\s*neck|kepala\\s*(?:dan|&)\\s*leher|mammae|payudara|pedis|tarsal|kelenjar\\s*getah\\s*bening|limfadenopati)",
+          "validation": "Lokasi dibutuhkan untuk menilai kelayakan perawatan dan rumpun kode prosedur."
+        },
+        {
+          "name": "Bukti Patologi Anatomi",
+          "dataType": "Boolean",
+          "extraction": "(?:patologi\\s*anatomi|histopatologi|hasil\\s*PA|no\\.?\\s*PA)",
+          "validation": "Blueprint pengguna menyatakan hasil PA wajib dilampirkan."
+        },
+        {
+          "name": "Bukti Laporan Operasi",
+          "dataType": "Boolean",
+          "extraction": "(?:laporan\\s*operasi|lap\\.?\\s*op|tindakan\\s*(?:eksisi|biopsi))",
+          "validation": "Blueprint pengguna menyatakan laporan tindakan wajib tersedia."
+        },
+        {
+          "name": "Jenis Tindakan STT",
+          "dataType": "String",
+          "extraction": "(?:eksisi|excision|biopsi|biopsy|pengangkatan\\s*(?:seluruh\\s*)?(?:massa|tumor|lesi))",
+          "validation": "Membedakan tindakan biopsi dari eksisi massa."
+        },
+        {
+          "name": "Kode ICD-9-CM STT",
+          "dataType": "String",
+          "extraction": "(?:86\\.3|83\\.39|85\\.21|77\\.68|40\\.2|38\\.60|86\\.11|83\\.21|40\\.11)",
+          "validation": "Kode yang ditemukan OCR harus dicocokkan dengan jenis tindakan, kedalaman, jaringan, dan lokasi."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-14",
+      "title": "KELOMPOK KASUS IGD MENJADI RAWAT INAP (Kriteria Gawat Darurat & Observasi >6 Jam)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Jam Masuk IGD Triage Time",
+          "dataType": "DateTime",
+          "extraction": "(?:Jam\\s*Masuk|Masuk\\s*IGD|Triage)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu pertama kali pasien tiba di unit gawat darurat (IGD)."
+        },
+        {
+          "name": "Jam Pindah Ranap Transfer Time",
+          "dataType": "DateTime",
+          "extraction": "(?:Jam\\s*Pindah|Pindah\\s*Ranap|Keluar\\s*IGD)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu pasien dipindahkan dari IGD ke bangsal rawat inap (RITL)."
+        },
+        {
+          "name": "Durasi Observasi >6 Jam Observation Duration",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: Jam Pindah - Jam Masuk",
+          "validation": "Rule (BA 2024): Pasien yang mendapatkan pelayanan observasi di IGD > 6 jam sah ditarik sebagai pasien rawat inap JKN, meskipun kriteria triase kegawatdaruratan awal tidak terpenuhi ekstrem."
+        },
+        {
+          "name": "GCS Awal Triage Conscious",
+          "dataType": "Int",
+          "extraction": "GCS\\s*([0-9]+)",
+          "validation": "Skala kesadaran awal. GCS <= 8 menunjukkan status kritis (ancaman Airway/Breathing)."
+        },
+        {
+          "name": "Tanda Vital IGD TD, HR, RR, Suhu, SpO2",
+          "dataType": "String",
+          "extraction": "Mengekstrak data tanda vital",
+          "validation": "Menapis nilai numerik tensi, nadi, napas, suhu, dan saturasi untuk mendeteksi syok, gagal napas, atau hipotermia berat."
+        },
+        {
+          "name": "Skor Triase Triage Category",
+          "dataType": "String",
+          "extraction": "(?:Triase|Skor\\s*Triase)\\s*[:=]\\s*(Merah|Kuning|Hijau|Hitam|ATS\\s*[1-5]|ESI\\s*[1-5])",
+          "validation": "Kategori kegawatdaruratan: Merah (Gawat Darurat Segera), Kuning (Darurat Tidak Gawat), Hijau (Tidak Gawat Tidak Darurat)."
+        },
+        {
+          "name": "Skor NEWS / MEWS Early Warning Score",
+          "dataType": "Int",
+          "extraction": "(?:NEWS|MEWS|Skor\\s*NEWS)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Skor peringatan dini klinis. Skor NEWS >= 5 menunjukkan risiko klinis sedang-tinggi yang memerlukan penanganan rawat inap intensif."
+        },
+        {
+          "name": "Ancaman ABC Airway, Breathing, Circulation",
+          "dataType": "Boolean",
+          "extraction": "(?:Ancaman\\s*ABC|Sumbatan|Sesak|Syok)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Rule (BA 2024): Adanya gangguan nyata pada patensi jalan napas (Airway), usaha napas berat (Breathing), atau perfusi/syok (Circulation) mengesahkan status Gawat Darurat RITL."
+        },
+        {
+          "name": "Jam Masuk IGD",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam pasien masuk pintu triase IGD",
+          "validation": "Waktu kontak pertama pasien di IGD."
+        },
+        {
+          "name": "Jam Pindah Ranap",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam pasien dipindahkan ke bangsal rawat inap",
+          "validation": "Waktu keluar dari IGD."
+        },
+        {
+          "name": "Durasi Observasi",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [Jam Pindah] - [Jam Masuk] dalam satuan jam",
+          "validation": "BA JKN 2024: pasien IGD yang diobservasi > 6 jam layak diklaim rawat inap."
+        },
+        {
+          "name": "GCS",
+          "dataType": "Int",
+          "extraction": "GCS\\s*([0-9]+)",
+          "validation": "Gawat darurat jika GCS <= 12 atau terjadi penurunan kesadaran akut."
+        },
+        {
+          "name": "Tekanan Darah (MAP)",
+          "dataType": "Float",
+          "extraction": "MAP\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Gawat darurat jika MAP ekstrem (< 60 mmHg atau > 130 mmHg)."
+        },
+        {
+          "name": "Nadi / HR",
+          "dataType": "Int",
+          "extraction": "HR\\s*[:=]\\s*([0-9]+)",
+          "validation": "Gawat darurat jika HR ekstrem (< 50 bpm atau > 120 bpm)."
+        },
+        {
+          "name": "Respiratory Rate",
+          "dataType": "Int",
+          "extraction": "RR\\s*[:=]\\s*([0-9]+)",
+          "validation": "Gawat darurat jika RR ekstrem (< 10 x/mnt atau > 30 x/mnt) (gagal napas)."
+        },
+        {
+          "name": "Suhu",
+          "dataType": "Float",
+          "extraction": "Suhu\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Hipotermia berat (< 35°C) atau hipertermia ekstrem (> 40°C)."
+        },
+        {
+          "name": "SpO2",
+          "dataType": "Float",
+          "extraction": "SpO2\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Saturasi oksigen rendah (< 90%) menunjukkan ancaman gagal napas."
+        },
+        {
+          "name": "Skor Triase",
+          "dataType": "String",
+          "extraction": "(?:ATS\\s*[1-5]|ESI\\s*[1-5]|merah|kuning|hijau)",
+          "validation": "Skor prioritas kegawatdaruratan. Prioritas Merah/Kuning wajib rawat inap."
+        },
+        {
+          "name": "NEWS / MEWS Score",
+          "dataType": "Int",
+          "extraction": "(?:NEWS|MEWS)\\s*score\\s*[:=]\\s*([0-9]+)",
+          "validation": "National Early Warning Score. Skor >= 5 menunjukkan risiko tinggi perburukan."
+        },
+        {
+          "name": "Ancaman ABC",
+          "dataType": "Boolean",
+          "extraction": "(?:sumbatan\\s*jalan\\s*napas|stridor|gasping|apnea|syok|perdarahan\\s*aktif)",
+          "validation": "Bukti klinis objektif adanya gangguan Airway, Breathing, atau Circulation."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-16",
+      "title": "KELOMPOK KASUS BATU SALURAN KEMIH DENGAN ISK (ICD-10: N20-N23 + N39.0 / Kode Gabung)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Ukuran & Jumlah Batu BSK Profile",
+          "dataType": "String",
+          "extraction": "Mengekstrak ukuran/jumlah batu",
+          "validation": "Profil batu saluran kemih (dimensi terbesar dalam cm/mm) dan jumlahnya."
+        },
+        {
+          "name": "Derajat Hidronefrosis Pencitraan Ginjal",
+          "dataType": "String",
+          "extraction": "(?:Hidronefrosis|Grade\\s*Hidronefrosis)\\s*[:=]\\s*(Grade\\s*[1-4]|Ringan|Sedang|Berat)",
+          "validation": "Pelebaran sistem kaliks ginjal akibat sumbatan batu. Grade 3-4 menunjukkan sumbatan berat/kronis."
+        },
+        {
+          "name": "Hasil Urinalisis Leukosit & Eritrosit Urine",
+          "dataType": "String",
+          "extraction": "Mengekstrak data urin rutin",
+          "validation": "Mengekstrak nilai numerik leukosit urin (normal < 5/LPB) dan eritrosit urin (normal < 3/LPB) untuk konfirmasi ISK."
+        },
+        {
+          "name": "Nitrit & Leukosit Esterase Urin Strip",
+          "dataType": "String",
+          "extraction": "(?:Nitrit|Leukocyte\\s*Esterase)\\s*[:=]\\s*(Positif|Negatif)",
+          "validation": "Hasil tes dipstick urine. Nitrit (+) dan Leukosit Esterase (+) sangat spesifik untuk infeksi bakteri saluran kemih."
+        },
+        {
+          "name": "Kultur Urine Jumlah Koloni Bakteri",
+          "dataType": "String",
+          "extraction": "(?:Kultur\\s*Urine|Jumlah\\s*Koloni)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria emas ISK: kultur urine positif menemukan pertumbuhan bakteri >= 10^5 koloni (CFU/mL)."
+        },
+        {
+          "name": "Suhu & Leukosit Darah Sistemik Respon",
+          "dataType": "String",
+          "extraction": "Mengekstrak suhu/leukosit darah",
+          "validation": "Menilai ada/tidaknya gejala sistemik (demam > 38°C dan leukositosis darah) yang membedakan ISK atas (Urosepsis/Pielonefritis) dengan ISK bawah biasa."
+        },
+        {
+          "name": "Aturan Kode Gabung JKN Batu + ISK",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Rule (BA 2023 Poin 3): ISK (N39.0) yang menyertai kasus batu saluran kemih (N20-N23) dilarang dikode terpisah. ISK dianggap gejala penyerta yang include di kode batu saluran kemih. AI otomatis menghapus kode N39.0."
+        },
+        {
+          "name": "Ukuran Batu",
+          "dataType": "Float",
+          "extraction": "([0-9.]+)\\s*(?:cm|mm)",
+          "validation": "Ukuran dimensi terbesar batu saluran kemih."
+        },
+        {
+          "name": "Lokasi Batu",
+          "dataType": "String",
+          "extraction": "(?:ginjal|ureter|buli|sistolitiasis|nefrolitiasis)",
+          "validation": "Tempat tersangkutnya batu."
+        },
+        {
+          "name": "Hidronefrosis",
+          "dataType": "String",
+          "extraction": "hidronefrosis\\s*grade\\s*([0-4I|]+)",
+          "validation": "Adanya pembendungan urine di ginjal akibat sumbatan batu."
+        },
+        {
+          "name": "Leukosit Urine",
+          "dataType": "Int",
+          "extraction": "Leukosit\\s*Urine\\s*[:=]\\s*([0-9.-]+)\\s*/LPB",
+          "validation": "ISK ditegakkan jika leukosit urine > 10 /LPB."
+        },
+        {
+          "name": "Eritrosit Urine",
+          "dataType": "Int",
+          "extraction": "Eritrosit\\s*Urine\\s*[:=]\\s*([0-9.-]+)\\s*/LPB",
+          "validation": "Hematuria akibat gesekan batu di saluran kemih."
+        },
+        {
+          "name": "Nitrit",
+          "dataType": "String",
+          "extraction": "Nitrit\\s*[:=]\\s*(?:Positif|Negatif|\\+|-)",
+          "validation": "Hasil positif menunjukkan adanya bakteri pereduksi nitrat."
+        },
+        {
+          "name": "Leukocyte Esterase",
+          "dataType": "String",
+          "extraction": "Leukocyte\\s*Esterase\\s*[:=]\\s*(?:Positif|Negatif|\\+|-)",
+          "validation": "Penanda keberadaan sel darah putih (leukosit) di urine."
+        },
+        {
+          "name": "Kultur Urine",
+          "dataType": "Int",
+          "extraction": "kultur\\s*Urine\\s*[:=]\\s*([0-9eE+^]+)\\s*CFU/ml",
+          "validation": "Pertumbuhan bakteri >= 10^5 CFU/ml mengonfirmasi ISK secara definitif."
+        },
+        {
+          "name": "Suhu & Leukosit Darah",
+          "dataType": "String",
+          "extraction": "Suhu\\s*([0-9.]+)\\s*Leukosit\\s*([0-9.]+)",
+          "validation": "Demam & leukositosis sistemik menunjukkan ISK sudah meluas (Urosepsis)."
+        },
+        {
+          "name": "Fungsi Ginjal (Ureum/Cr)",
+          "dataType": "String",
+          "extraction": "Ureum\\s*([0-9.]+)\\s*Kreatinin\\s*([0-9.]+)",
+          "validation": "Menilai adanya penurunan fungsi ginjal akut (AKI) akibat sumbatan batu."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-15",
+      "title": "KELOMPOK KASUS KOLELITIASIS / KOLANGITIS / KOLESISTITIS (ICD-10: K80.- / K81.- / K83.0 / Kode Gabung)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Profil Bilirubin Total, Direk, Indirek",
+          "dataType": "String",
+          "extraction": "Mengekstrak nilai bilirubin",
+          "validation": "Kadar bilirubin serum. Peningkatan bilirubin direk (> 2 mg/dL) mengonfirmasi adanya sumbatan saluran empedu (ikterus obstruktif)."
+        },
+        {
+          "name": "Enzim Hepato-Bilier SGOT/SGPT, ALP, GGT",
+          "dataType": "String",
+          "extraction": "Mengekstrak nilai enzim",
+          "validation": "Peningkatan tajam Alkaline Phosphatase (ALP) dan Gamma-Glutamyl Transferase (GGT) mengonfirmasi obstruksi bilier kronik/akut."
+        },
+        {
+          "name": "Suhu & Leukosit Respon Inflamasi",
+          "dataType": "String",
+          "extraction": "Mengekstrak suhu/leukosit",
+          "validation": "Demam > 38°C dan leukositosis > 10.000 /uL sebagai bukti adanya inflamasi sistemik/infeksi empedu."
+        },
+        {
+          "name": "Diameter CBD Common Bile Duct",
+          "dataType": "Float",
+          "extraction": "(?:Diameter\\s*CBD|CBD|Saluran\\s*Empedu)\\s*[:=]\\s*([0-9.]+)\\s*(?:mm|cm)",
+          "validation": "Diameter saluran empedu utama. Diameter CBD > 6 mm menunjukkan adanya dilatasi akibat sumbatan (batu/striktur)."
+        },
+        {
+          "name": "Tokyo Guidelines Kriteria Kolesistitis/Kolangitis",
+          "dataType": "String",
+          "extraction": "(?:TG13|TG18|Tokyo\\s*Guidelines)\\s*[:=]\\s*(Grade\\s*[1-3]|Class\\s*[1-3])",
+          "validation": "Kriteria diagnosis resmi kolesistitis akut (TG18/A: inflamasi lokal, B: inflamasi sistemik, C: temuan pencitraan kolesistitis)."
+        },
+        {
+          "name": "Aturan Kode Gabung JKN Batu + Kolangitis",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Rule (BA 2023 Poin 31): Kasus batu empedu (K80.-) yang disertai kolangitis/kolesistitis wajib digabungkan ke kode tunggal, yaitu K80.3 (Calculus of bile duct with cholangitis) atau K80.4. Dilarang menggunakan koding terpisah!"
+        },
+        {
+          "name": "Bilirubin Total/Direk",
+          "dataType": "String",
+          "extraction": "Bilirubin\\s*Total\\s*([0-9.]+)\\s*Direk\\s*([0-9.]+)",
+          "validation": "Bilirubin tinggi (> 2.0 mg/dL) mengindikasikan sumbatan saluran empedu."
+        },
+        {
+          "name": "AST / ALT",
+          "dataType": "String",
+          "extraction": "AST\\s*([0-9.]+)\\s*ALT\\s*([0-9.]+)",
+          "validation": "Kadar enzim transaminase hati."
+        },
+        {
+          "name": "ALP / GGT",
+          "dataType": "String",
+          "extraction": "ALP\\s*([0-9.]+)\\s*GGT\\s*([0-9.]+)",
+          "validation": "Peningkatan ALP & GGT sangat spesifik untuk obstruksi bilier."
+        },
+        {
+          "name": "Leukosit Darah",
+          "dataType": "Float",
+          "extraction": "Leukosit\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Leukositosis (> 10.000/uL) sebagai bukti inflamasi sistemik."
+        },
+        {
+          "name": "Suhu Tubuh",
+          "dataType": "Float",
+          "extraction": "Suhu\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Demam/menggigil (trias Charcot pada kolangitis)."
+        },
+        {
+          "name": "Diameter CBD",
+          "dataType": "Float",
+          "extraction": "CBD\\s*([0-9.]+)\\s*(?:mm|cm)",
+          "validation": "Common Bile Duct melebar (> 6 mm) menandakan sumbatan batu saluran empedu."
+        },
+        {
+          "name": "Ukuran/Lokasi Batu",
+          "dataType": "String",
+          "extraction": "batu\\s*empedu\\s*([0-9.]+)\\s*(?:cm|mm)",
+          "validation": "Adanya batu di kandung empedu atau saluran empedu utama."
+        },
+        {
+          "name": "Tokyo Guidelines",
+          "dataType": "String",
+          "extraction": "TG\\s*(?:13|18)\\s*grade\\s*([I|]+)",
+          "validation": "Kriteria klasifikasi keparahan kolesistitis/kolangitis akut."
+        },
+        {
+          "name": "Bukti Obstruksi",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi: jika USG menunjukkan 'batu CBD' atau bilirubin > 2.0",
+          "validation": "Kunci penggabungan kode: K80.3 (kolelitiasis + kolangitis) atau K80.4 (+ kolesistitis)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-03",
+      "title": "KELOMPOK KASUS STROKE (ICD-10: I61.- / I63.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Waktu Onset Last Known Well",
+          "dataType": "DateTime",
+          "extraction": "(?:Onset\\s*Stroke|Onset|Last\\s*Known\\s*Well)\\s*[:=]\\s*(.*)",
+          "validation": "Waktu pertama kali gejala stroke (kelemahan anggota gerak, pelo, mulut mencong) muncul atau pasien terakhir kali terlihat sehat."
+        },
+        {
+          "name": "Selisih Onset ke RS Time to Hospital",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: Tgl Masuk - Tgl Onset",
+          "validation": "Waktu keterlambatan pasien sampai di IGD. Target waktu untuk terapi trombolisis intravena adalah < 4.5 jam (golden period)."
+        },
+        {
+          "name": "Skor NIHSS Stroke Severity",
+          "dataType": "Int",
+          "extraction": "(?:NIHSS|Skor\\s*NIHSS)\\s*[:=]\\s*([0-9]+)",
+          "validation": "National Institutes of Health Stroke Scale (skala 0-42). Skor > 22 menandakan stroke berat; skor < 4 stroke ringan."
+        },
+        {
+          "name": "Hasil CT Scan Kepala Infark vs Perdarahan",
+          "dataType": "String",
+          "extraction": "(?:CT\\s*Scan|CT\\s*Kepala|Hasil\\s*CT)\\s*[:=]\\s*(Infark|Perdarahan|Bleeding|Iskemik|Normal)",
+          "validation": "Pemeriksaan penunjang mutlak (PMK 514/2015): • Perdarahan (I61.-): tampak area hiperdens fokal. • Infark (I63.-): tampak area hipodens fokal (iskemik). Rule: Membedakan kode diagnosis utama stroke secara akurat."
+        },
+        {
+          "name": "Skor ASPECTS Alberta Stroke Program CT",
+          "dataType": "Int",
+          "extraction": "(?:ASPECTS|Skor\\s*ASPECTS)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Skor aspek radiologi CT kepala non-kontras (skala 0-10) untuk menilai luasnya iskemia akut di wilayah MCA. Skor < 6 dikorelasikan dengan risiko perdarahan tinggi pasca-trombolisis."
+        },
+        {
+          "name": "Waktu & Dosis Trombolisis rtPA Therapy",
+          "dataType": "String",
+          "extraction": "(?:Trombolisis|rtPA|Alteplase)\\s*[:=]\\s*(.*)",
+          "validation": "Pemberian Actilyse (Alteplase) dengan dosis standar 0.9 mg/kgBB (maks 90 mg) untuk stroke iskemik akut < 4.5 jam. Rule: AI mencocokkan billing obat Alteplase dengan catatan tindakan lisis di rekam medis."
+        },
+        {
+          "name": "Onset Stroke",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam kejadian gejala neurologis pertama kali",
+          "validation": "Last Known Well (sangat krusial untuk terapi trombolisis)."
+        },
+        {
+          "name": "Selisih Onset (Jam)",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [Jam Masuk RS] - [Onset Stroke]",
+          "validation": "Trombolisis IV rtPA wajib dilakukan dalam golden window < 4.5 jam."
+        },
+        {
+          "name": "NIHSS",
+          "dataType": "Int",
+          "extraction": "NIHSS\\s*[:=]\\s*([0-9]+)",
+          "validation": "National Institutes of Health Stroke Scale. Mengukur derajat defisit neurologis."
+        },
+        {
+          "name": "GCS",
+          "dataType": "Int",
+          "extraction": "GCS\\s*([0-9]+)",
+          "validation": "Menilai kesadaran umum pasien stroke."
+        },
+        {
+          "name": "Tekanan Darah",
+          "dataType": "String",
+          "extraction": "([0-9]+)/([0-9]+)\\s*mmHg",
+          "validation": "Awas: TD harus diturunkan < 185/110 mmHg sebelum pemberian trombolisis."
+        },
+        {
+          "name": "Glukosa Darah",
+          "dataType": "Int",
+          "extraction": "GDS\\s*[:=]\\s*([0-9]+)\\s*mg/dL",
+          "validation": "Trombolisis kontraindikasi jika hipoglikemia (< 50 mg/dL) atau hiperglikemia ekstrem."
+        },
+        {
+          "name": "Hasil CT-Scan",
+          "dataType": "String",
+          "extraction": "CT\\s*Head\\s*[:=]\\s*(?:infark|perdarahan|hemoragik|ischemic)",
+          "validation": "Kunci pembagi utama kode: I63 (Infark/Iskemik) vs I61 (Perdarahan/Hemoragik)."
+        },
+        {
+          "name": "ASPECTS",
+          "dataType": "Int",
+          "extraction": "ASPECTS\\s*[:=]\\s*([0-9]+)",
+          "validation": "Alberta Stroke Program Early CT Score (skor rendah = infark luas, risiko tinggi perdarahan)."
+        },
+        {
+          "name": "Waktu Trombolisis",
+          "dataType": "DateTime",
+          "extraction": "Tanggal & jam pemberian bolus rtPA (Alteplase)",
+          "validation": "Door-to-Needle Time (target < 60 menit dari pasien tiba di RS)."
+        },
+        {
+          "name": "Dosis Trombolitik",
+          "dataType": "Float",
+          "extraction": "rtPA\\s*([0-9.]+)\\s*mg",
+          "validation": "Dosis standar Alteplase: 0.6 - 0.9 mg/kg BB (maksimum 90 mg)."
+        },
+        {
+          "name": "Kontraindikasi",
+          "dataType": "Boolean",
+          "extraction": "(?:perdarahan\\s*aktif|trauma\\s*kepala|riwayat\\s*stroke\\s*<3\\s*bulan|trombosit\\s*<100k)",
+          "validation": "Kondisi medis yang membatalkan pemberian rtPA."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-03",
+      "title": "KELOMPOK KASUS HEMOROID (ICD-10: I84.- / K64.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Grade Hemoroid Derajat Klinis",
+          "dataType": "String",
+          "extraction": "(?:Grade|Derajat|Stadium)\\s*Hemoroid\\s*[:=]\\s*(Grade\\s*I+|Derajat\\s*[1-4]|[1-4])",
+          "validation": "• Grade I: Tanpa prolaps. • Grade II: Prolaps saat BAB, masuk sendiri. • Grade III: Prolaps saat BAB, harus didorong jari. • Grade IV: Prolaps menetap, tidak bisa didorong masuk. Rule: AI mengonversi teks menjadi data numerik terstruktur (Int = 1 s.d 4)."
+        },
+        {
+          "name": "Nilai Hemoglobin Anemia Derajat",
+          "dataType": "Float",
+          "extraction": "(?:Hb|Hemoglobin)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Mendeteksi adanya komplikasi anemia berat akibat perdarahan hemoroid kronik (misal Hb < 8 g/dL) untuk penjaminan transfusi PRC sekunder (D64.9)."
+        },
+        {
+          "name": "Tindakan Bedah Hemorrhoidectomy",
+          "dataType": "Boolean",
+          "extraction": "(?:Hemorrhoidectomy|Eksisi\\s*Hemoroid|Proc\\s*49.46)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Rule (BA 2024 Poin 33): Kasus hemoroid sah dirawat inap apabila memerlukan tindakan intervensi pembedahan (Hemorrhoidectomy - ICD-9: 49.46) di kamar operasi. Sistem memverifikasi adanya lembar Laporan Operasi & Anestesi Spinal/Umum."
+        },
+        {
+          "name": "Grade Hemoroid",
+          "dataType": "Int",
+          "extraction": "Grade\\s*([1-4|I|V]+)",
+          "validation": "Derajat klinis hemoroid interna (Grade I s.d. IV)."
+        },
+        {
+          "name": "Konversi Nilai",
+          "dataType": "Int",
+          "extraction": "Logika: jika Grade I -> 1; II -> 2; III -> 3; IV -> 4",
+          "validation": "Konversi tipe data romawi/teks menjadi numerik terstruktur."
+        },
+        {
+          "name": "Derajat Perdarahan",
+          "dataType": "String",
+          "extraction": "perdarahan\\s*(?:aktif|kronik|sedikit|massif)",
+          "validation": "Adanya keluhan perdarahan segar per rektum saat atau setelah BAB."
+        },
+        {
+          "name": "Kadar Hemoglobin",
+          "dataType": "Float",
+          "extraction": "Hb\\s*[:=]\\s*([0-9.]+)\\s*g/dL",
+          "validation": "Mengukur keparahan anemia sekunder akibat perdarahan hemoroid."
+        },
+        {
+          "name": "Durasi Keluhan",
+          "dataType": "String",
+          "extraction": "sejak\\s*([a-zA-Z0-9\\s]+)\\s*lalu",
+          "validation": "Lama keluhan benjolan anus / perdarahan kronik."
+        },
+        {
+          "name": "Jumlah Bantalan",
+          "dataType": "Int",
+          "extraction": "([0-9]+)\\s*bantalan|arah\\s*jam\\s*[0-9,\\s]+",
+          "validation": "Posisi bantalan hemoroid yang mengalami prolaps (arah jam 3, 7, 11)."
+        },
+        {
+          "name": "Korelasi Tindakan",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika Grade >= 3 DAN dilakukan Hemorandektomi -> Rawat Inap Sah",
+          "validation": "Memenuhi kriteria kelayakan rawat inap JKN Poin 33 (pembedahan aktif)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-13",
+      "title": "KELOMPOK KASUS ODONTEKTOMI (ICD-9-CM: 23.19)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Pell & Gregory Class Hubungan Ramus & Bidang",
+          "dataType": "String",
+          "extraction": "(?:Pell\\s*&\\s*Gregory|Pell|Gregory)\\s*[:=]\\s*([1-3][A-C])",
+          "validation": "• Kelas 1, 2, 3: Menilai hubungan ruang gigi impaksi dengan ramus mandibula. • Kelas A, B, C: Menilai kedalaman gigi impaksi terhadap dataran oklusal gigi tetangga. Rule: Mengonversi data visual menjadi teks terstruktur."
+        },
+        {
+          "name": "Klasifikasi Winter Arah Sumbu Gigi",
+          "dataType": "String",
+          "extraction": "(?:Winter|Klasifikasi\\s*Winter)\\s*[:=]\\s*(Mesioangular|Distoangular|Horizontal|Vertikal)",
+          "validation": "Arah sumbu gigi impaksi terhadap sumbu gigi tetangga. Klasifikasi Distoangular & Horizontal memiliki tingkat kesulitan odontektomi lebih tinggi."
+        },
+        {
+          "name": "Tingkat Kesulitan Impaksi Odontektomi Kriteria",
+          "dataType": "String",
+          "extraction": "(?:Tingkat\\s*Kesulitan|Kategori\\s*Impaksi)\\s*[:=]\\s*(Ringan|Sedang|Berat)",
+          "validation": "• Ringan (Impaksi IA, 1A, 2A): wajib Rawat Jalan (Anestesi Lokal). • Sedang/Berat (Impaksi 1B, 2B, 2C, 3A, 3B, 3C): sah dilakukan Rawat Inap (One Day Care atau 1-2 hari) dengan Anestesi Umum/Narkose (BA 2024). Rule: AI memverifikasi kelayakan rawat inap berdasarkan kategori kesulitan radiologi."
+        },
+        {
+          "name": "Jumlah Gigi Impaksi Odontektomi Multiple",
+          "dataType": "Int",
+          "extraction": "(?:Jumlah\\s*Gigi|Jumlah\\s*Impaksi)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Jumlah gigi yang di-odontektomi (ICD-9: 23.19) dalam satu episode operasi."
+        },
+        {
+          "name": "Pell & Gregory Kelas",
+          "dataType": "String",
+          "extraction": "Kelas\\s*([ABC123I|]+)",
+          "validation": "Klasifikasi impaksi gigi rahang bawah berdasarkan ruang ramus mandibular."
+        },
+        {
+          "name": "Pell & Gregory Posisi",
+          "dataType": "String",
+          "extraction": "Posisi\\s*([ABC123I|]+)",
+          "validation": "Klasifikasi impaksi berdasarkan kedalaman gigi terhadap oklusal."
+        },
+        {
+          "name": "Klasifikasi Winter",
+          "dataType": "String",
+          "extraction": "(?:mesioangular|distoangular|horizontal|vertikal)",
+          "validation": "Arah sumbu panjang gigi impaksi terhadap gigi tetangga."
+        },
+        {
+          "name": "Kedalaman Impaksi",
+          "dataType": "String",
+          "extraction": "kedalaman\\s*(?:tulang|tulang\\s*sebagian|tulang\\s*total)",
+          "validation": "Menentukan tingkat kesulitan pembukaan mukosa dan tulang."
+        },
+        {
+          "name": "Hubungan Ramus",
+          "dataType": "String",
+          "extraction": "(?:ramus\\s*kelas\\s*[1-3])",
+          "validation": "Jarak gigi impaksi terhadap batas anterior ramus."
+        },
+        {
+          "name": "Tingkat Kesulitan",
+          "dataType": "String",
+          "extraction": "Kalkulasi skor berdasarkan klasifikasi Pell & Gregory",
+          "validation": "Kategori impaksi Ringan, Sedang, atau Berat sesuai panduan bedah mulut."
+        },
+        {
+          "name": "Jumlah Gigi Impaksi",
+          "dataType": "Int",
+          "extraction": "([0-9]+)\\s*gigi\\s*impaksi",
+          "validation": "Jumlah gigi impaksi yang diekstraksi sekaligus dalam satu tindakan."
+        },
+        {
+          "name": "Durasi Tindakan",
+          "dataType": "Int",
+          "extraction": "([0-9]+)\\s*menit",
+          "validation": "Lama waktu operasi odontektomi di kamar operasi."
+        },
+        {
+          "name": "Anestesi & Komorbid",
+          "dataType": "String",
+          "extraction": "Anestesi\\s*(?:lokal|umum/narkose|sedasi)\\s*komorbid\\s*(?:ada|tidak)",
+          "validation": "BA JKN 2024: odontektomi impaksi sedang-berat dengan anestesi umum sah dirawat inap."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-09",
+      "title": "KELOMPOK KASUS SINOVITIS / Synovitis (ICD-10: M65.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Jumlah Sendi Terlibat Joint Count",
+          "dataType": "Int",
+          "extraction": "(?:Jumlah\\s*Sendi|Sendi\\s*Terlibat)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Mendeteksi keterlibatan monoartikular (1 sendi) atau poliartikular (>= 2 sendi) pada kasus sinovitis (M65.-)."
+        },
+        {
+          "name": "Derajat Efusi Sendi Pemeriksaan Fisik / USG",
+          "dataType": "String",
+          "extraction": "(?:Efusi|Cairan\\s*Sendi|Derajat\\s*Efusi)\\s*[:=]\\s*(Ringan|Sedang|Berat|Minimal|Positif)",
+          "validation": "Kandungan cairan sendi patologis berlebih akibat peradangan membran sinovial. Rule: Adanya efusi sendi moderat-berat mendukung indikasi tindakan aspirasi cairan sendi terapeutik (ICD-9: 81.91)."
+        },
+        {
+          "name": "ROM Sendi LGS Sendi",
+          "dataType": "String",
+          "extraction": "(?:ROM|LGS|Range\\s*of\\s*Motion)\\s*[:=]\\s*(Terbatas|Bebas|Normal|Abnormal)",
+          "validation": "Menilai adanya gangguan fungsi gerak akibat nyeri/bengkak sendi. Rule: Tanpa MRI, bukti pemeriksaan fisik ROM terbatas + hasil foto rontgen/USG sendi biasa + terapi NSAID sudah sah mengonfirmasi diagnosis sekunder Synovitis (M65.-) di JKN. AI membantah otomatis penolakan verifikator."
+        },
+        {
+          "name": "Jumlah Sendi",
+          "dataType": "Int",
+          "extraction": "([0-9]+)\\s*sendi\\s*(?:terlibat|meradang)",
+          "validation": "Sinovitis monoartikular (1 sendi) atau poliartikular (> 1 sendi)."
+        },
+        {
+          "name": "Skala Nyeri",
+          "dataType": "Int",
+          "extraction": "(?:VAS|NRS|nyeri)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Visual Analogue Scale (nyeri hebat jika skor >= 7)."
+        },
+        {
+          "name": "Derajat Efusi",
+          "dataType": "String",
+          "extraction": "efusi\\s*(?:ringan|sedang|berat|minimal)",
+          "validation": "Penumpukan cairan berlebih di dalam rongga sinovial sendi."
+        },
+        {
+          "name": "Range of Motion",
+          "dataType": "Int",
+          "extraction": "ROM\\s*[:=]\\s*([0-9]+)\\s*derajat",
+          "validation": "Keterbatasan gerak sendi akibat peradangan sinovial."
+        },
+        {
+          "name": "Suhu Sendi",
+          "dataType": "Float",
+          "extraction": "suhu\\s*lokal\\s*([0-9.]+)\\s*°?C?",
+          "validation": "Adanya kehangatan lokal pada kulit di atas sendi yang meradang."
+        },
+        {
+          "name": "Leukosit/CRP/LED",
+          "dataType": "String",
+          "extraction": "CRP\\s*([0-9.]+)\\s*LED\\s*([0-9.]+)",
+          "validation": "Peningkatan LED & CRP menunjukkan inflamasi sendi aktif."
+        },
+        {
+          "name": "Analisis Cairan",
+          "dataType": "String",
+          "extraction": "cairan\\s*sendi\\s*(?:non-inflamasi|inflamasi|purulen|hemoragik)",
+          "validation": "Hasil aspirasi cairan sendi untuk menyingkirkan artritis septik."
+        },
+        {
+          "name": "Respons Terapi",
+          "dataType": "Boolean",
+          "extraction": "Pengurangan bengkak & nyeri pasca pemberian obat NSAID atau injeksi steroid",
+          "validation": "Menilai keberhasilan tatalaksana klinis tanpa perlu MRI (fakta sanggah JKN)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-19",
+      "title": "KELOMPOK KASUS INDUKSI PERSALINAN (ICD-9-CM: 73.4 / 73.1)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Bishop Score Kematangan Serviks",
+          "dataType": "Int",
+          "extraction": "(?:Bishop|Skor\\s*Bishop|Bishop\\s*Score)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Skor kematangan serviks (skala 0-13) berdasarkan dilatasi, pendataran, konsistensi, posisi, dan stasi janin. Rule: Skor Bishop < 6 menandakan serviks belum matang, memerlukan induksi medis (misoprostol). Skor >= 6 menandakan serviks matang, dapat langsung dilakukan induksi oksitosin drip atau amniotomi."
+        },
+        {
+          "name": "Dosis & Obat Induksi Drip Oksitosin / Misoprostol",
+          "dataType": "String",
+          "extraction": "(?:Obat\\s*Induksi|Dosis\\s*Misoprostol|Drip)\\s*[:=]\\s*(.*)",
+          "validation": "• Induksi Medis (ICD-9: 73.4): Menggunakan infus drip Oksitosin atau pemberian tablet Misoprostol (Cytotec) sublingual/vaginal. • Induksi Bedah/Mekanis (ICD-9: 73.1): Menggunakan balon foley kateter. Rule (BA 2023 Poin 19): Membedakan secara kronologis tindakan induksi persalinan dengan augmentasi biasa (augmentasi tidak dikode/omit)."
+        },
+        {
+          "name": "Usia Kehamilan",
+          "dataType": "Int",
+          "extraction": "UK\\s*([0-9]+)\\s*minggu",
+          "validation": "Kehamilan postterm (>= 42 mgg) atau aterm dengan indikasi medis."
+        },
+        {
+          "name": "Bishop Score",
+          "dataType": "Int",
+          "extraction": "Bishop\\s*score\\s*[:=]\\s*([0-9]+)",
+          "validation": "Skor kelayakan serviks. Bishop Score <= 5 memerlukan pematangan serviks."
+        },
+        {
+          "name": "Pembukaan Serviks",
+          "dataType": "Int",
+          "extraction": "pembukaan\\s*([0-9]+)\\s*(?:cm|)",
+          "validation": "Dilatasi serviks awal sebelum inisiasi induksi."
+        },
+        {
+          "name": "Dosis Misoprostol",
+          "dataType": "Float",
+          "extraction": "misoprostol\\s*([0-9.]+)\\s*(?:mcg|mcq)",
+          "validation": "Dosis obat pematangan serviks (misal 25 mcg per oral/vaginal)."
+        },
+        {
+          "name": "Dosis Oksitosin",
+          "dataType": "Float",
+          "extraction": "oksitosin\\s*([0-9.]+)\\s*IU\\s*drip",
+          "validation": "Dosis obat pemacu kontraksi (induksi intravena)."
+        },
+        {
+          "name": "Waktu Mulai Induksi",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam penempelan balon / inisiasi drip oksitosin",
+          "validation": "Awal tindakan induksi persalinan."
+        },
+        {
+          "name": "Waktu Persalinan",
+          "dataType": "DateTime",
+          "extraction": "Ekstraksi tanggal & jam bayi lahir",
+          "validation": "Akhir proses persalinan."
+        },
+        {
+          "name": "Pembedaan Kronologis",
+          "dataType": "String",
+          "extraction": "Logika: jika kontraksi belum adekuat sebelum tindakan -> Induksi; jika sudah inpartu -> Augmentasi",
+          "validation": "BA JKN 2023: Augmentasi dilarang dikode (Omit). Induksi wajib dikode 73.4 (medis) atau 73.1 (mekanis)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-GENERAL-01",
+      "title": "PEMERIKSAAN LINTAS SEMUA DIAGNOSIS (Pemeriksaan Umum & Audit Sistem)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Sinkronisasi Tanggal/Jam Timeline Validasi",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis dari rekam medis",
+          "validation": "Sistem memverifikasi keselarasan kronologis antara tanggal masuk pasien, waktu pemeriksaan laboratorium penunjang, laporan tindakan operasi, hingga tanggal keluar rumah sakit."
+        },
+        {
+          "name": "Kesesuaian Lab & Rujukan Nilai vs Reference",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "AI mencocokkan nilai lab aktual pasien dengan rentang nilai rujukan laboratorium berdasarkan usia dan jenis kelamin untuk mendeteksi deviasi patologis yang valid."
+        },
+        {
+          "name": "Dosis Obat vs BB Pediatric Dosing Audit",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi otomatis",
+          "validation": "Audit otomatis terhadap resep obat anak: menghitung kesesuaian dosis aktual obat yang ditagihkan di billing terhadap berat badan anak (kg) di CPPT demi mencegah ketidaksesuaian klaim/over-billing."
+        },
+        {
+          "name": "Sinkronisasi CPPT vs Billing Resource Audit",
+          "dataType": "Boolean",
+          "extraction": "Mencocokkan CPPT dengan billing",
+          "validation": "Rule: AI mencocokkan kesesuaian obat-obatan, dosis, rute, jumlah alkes/oksigen, dan laporan tindakan bedah antara CPPT dengan lembar resep dan rincian billing farmasi/tindakan. Jika tertulis terapi di billing tapi tidak ada catatannya di CPPT -> Alert: \"Potensi Phantom Billing!\""
+        },
+        {
+          "name": "Stempel Waktu Lab",
+          "dataType": "DateTime",
+          "extraction": "Tanggal & jam dari sistem LIS laboratorium",
+          "validation": "Menyusun urutan kronologis pemeriksaan sebelum vs sesudah terapi."
+        },
+        {
+          "name": "Kesesuaian Satuan",
+          "dataType": "String",
+          "extraction": "(?:mg/dL|mmol/L|mEq/L|u/L|g/dL)",
+          "validation": "Menghindari bias pembacaan akibat perbedaan standar satuan antarlab."
+        },
+        {
+          "name": "Kesesuaian Dosis",
+          "dataType": "Boolean",
+          "extraction": "Kalkulasi: bandingkan [Berat Badan] dengan formula dosis obat",
+          "validation": "Mencegah klaim over-dosing atau billing obat fiktif pada anak."
+        },
+        {
+          "name": "Justifikasi DPJP",
+          "dataType": "String",
+          "extraction": "Ekstraksi catatan dokter di lembar CPPT / Resume Medis",
+          "validation": "Menjadi bukti klinis sah jika ada tindakan tanpa penunjang standar."
+        },
+        {
+          "name": "Korelasi Resource",
+          "dataType": "Boolean",
+          "extraction": "Logika: diagnosis sekunder wajib sinkron dengan penanganan aktif & billing obat",
+          "validation": "Kunci utama meloloskan koding komorbid/komplikasi sesuai PMK 26/2021."
+        },
+        {
+          "name": "Sinkronisasi Billing",
+          "dataType": "Boolean",
+          "extraction": "Kesesuaian antara laporan tindakan, kode ICD-9-CM, resep, dan billing kasir",
+          "validation": "Pilar penapisan *phantom billing* atau salah tarif sebelum berkas diajukan."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-05",
+      "title": "KELOMPOK KASUS LUKA BAKAR / COMBUSTIO (ICD-10: T20-T25 / T31.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Total TBSA % Luas Luka Bakar",
+          "dataType": "Float",
+          "extraction": "(?:TBSA|Luas\\s*Luka\\s*Bakar)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Kriteria: Persentase total luas area tubuh yang terbakar. Rule: Menggunakan metode Rule of Nines Wallace atau kurva Lund-Browder untuk anak. Sistem memverifikasi total persentase untuk disesuaikan dengan kode keparahan T31 (misal T31.2- untuk 20-29% TBSA)."
+        },
+        {
+          "name": "Derajat Kedalaman Depth of Burn",
+          "dataType": "String",
+          "extraction": "(?:Derajat|Kedalaman|Depth)\\s*[:=]\\s*(Grade\\s*I+|Derajat\\s*[1-3]|Superficial|Deep|Full-thickness)",
+          "validation": "Kriteria: Klasifikasi kedalaman luka bakar. • Grade I (Superficial): Kerusakan epidermis saja. • Grade II (Partial thickness): Superficial/Deep, mengenai dermis. • Grade III (Full thickness): Mengenai subkutis, otot, hingga tulang. Rule: Membaca teks rekam medis untuk menentukan kode ICD-10 T20-T25."
+        },
+        {
+          "name": "Volume Resusitasi Cairan Baxter / Parkland",
+          "dataType": "Float",
+          "extraction": "(?:Resusitasi|Volume\\s*Cairan|Baxter|Parkland)\\s*[:=]\\s*([0-9.]+)\\s*(?:ml|L)",
+          "validation": "Kriteria: Jumlah cairan resusitasi kristaloid (RL) dalam 24 jam pertama. Rule: Memverifikasi kesesuaian formula Baxter/Parkland = 4 mL x Berat Badan (kg) x % TBSA. Sistem menghitung toleransi deviasi sebesar +/- 10% dari cairan yang diberikan pada lembar observasi klinis."
+        },
+        {
+          "name": "Kebutuhan Energi Total Energi (KET)",
+          "dataType": "Float",
+          "extraction": "(?:KET|Kebutuhan\\s*Energi|Kalori)\\s*[:=]\\s*([0-9.]+)\\s*kcal",
+          "validation": "Kriteria: Total asupan kalori harian yang diindikasikan. Rule: Menggunakan formula Curreri = 25 kcal/kgBB + 40 kcal/% TBSA. Sistem mengekstrak asupan gizi parenteral/enteral di lembar resep dan mencocokkan nilainya."
+        },
+        {
+          "name": "Skor ABSI Burn Severity Index",
+          "dataType": "Int",
+          "extraction": "(?:ABSI|Skor\\s*ABSI)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Kriteria: Skor prognosis luka bakar berdasarkan 5 variabel (Gender, Usia, Trauma Inhalasi, Full thickness, % TBSA). Rule: Sistem menghitung skor otomatis: jika Skor > 6 ATAU ada trauma inhalasi/listrik -> Validasi indikasi perawatan di Burn Centre / ICU Khusus."
+        },
+        {
+          "name": "Trauma Inhalasi Inhalation Injury",
+          "dataType": "Boolean",
+          "extraction": "(?:Trauma\\s*Inhalasi|Inhalation\\s*Injury|Cedera\\s*Jalan\\s*Napas)\\s*[:=]\\s*(Ya|Tidak|Positif|Negatif)",
+          "validation": "Kriteria: Bukti kerusakan jalan napas akibat paparan asap/panas. Rule: Deteksi kata kunci: 'jelaga di hidung', 'sputum karbon', 'serak', atau 'laringoskopi hiperemis'. Jika positif -> Sahkan klaim rawat ICU dengan ventilator."
+        },
+        {
+          "name": "Total TBSA",
+          "dataType": "Float",
+          "extraction": "(?:TBSA|luas\\s*luka\\s*bakar)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Total Body Surface Area. Mengukur persentase luas luka bakar."
+        },
+        {
+          "name": "Klasifikasi Usia",
+          "dataType": "String",
+          "extraction": "Logika: jika Usia < 10 tahun -> Anak; jika >= 10 -> Dewasa",
+          "validation": "Menentukan ambang keparahan luka bakar."
+        },
+        {
+          "name": "Derajat Kedalaman",
+          "dataType": "String",
+          "extraction": "(?:superficial|mid-dermal|deep\\s*dermal|full\\s*thickness|derajat\\s*[1-3])",
+          "validation": "Mengukur kedalaman kerusakan jaringan kulit."
+        },
+        {
+          "name": "Metode Kalkulasi",
+          "dataType": "String",
+          "extraction": "(?:Rule\\s*of\\s*Nine|Lund-Browder|Palmar\\s*area)",
+          "validation": "Alat ukur luas luka bakar. Palmar area (telapak tangan pasien) = 1% TBSA."
+        },
+        {
+          "name": "Kriteria Rujukan",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika TBSA > 10% (dewasa) atau > 5% (anak), atau full thickness > 5%, or trauma inhalasi",
+          "validation": "Sesuai kriteria EMSB-ANZBA wajib dirujuk ke Unit Khusus Luka Bakar."
+        },
+        {
+          "name": "Dosis Resusitasi Cairan",
+          "dataType": "Float",
+          "extraction": "cairan\\s*resusitasi\\s*([0-9.]+)\\s*ml/kg/%TBSA",
+          "validation": "Rumus Baxter/Parkland: 4 ml x kg BB x % TBSA RL dalam 24 jam pertama."
+        },
+        {
+          "name": "Nutrisi KET",
+          "dataType": "Float",
+          "extraction": "KET\\s*[:=]\\s*([0-9.]+)\\s*kcal",
+          "validation": "Kebutuhan Energi Total dihitung menggunakan rumus Schofield atau Toronto."
+        },
+        {
+          "name": "Skor ABSI",
+          "dataType": "Int",
+          "extraction": "ABSI\\s*(?:score|skor)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Abbreviated Burn Severity Index (skor > 6 wajib dirujuk ke unit luka bakar)."
+        },
+        {
+          "name": "Pemberian Antibiotik",
+          "dataType": "Boolean",
+          "extraction": "Logika: hindari profilaksis sistemik, berikan antibiotik hanya jika terbukti infeksi/sepsis",
+          "validation": "Sesuai PPK Luka Bakar Kemenkes (Rekomendasi C)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-06",
+      "title": "KELOMPOK KASUS MALNUTRISI ENERGI PROTEIN (MEP) (ICD-10: E40-E46)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "IMT / BMI Indeks Massa Tubuh",
+          "dataType": "Float",
+          "extraction": "(?:IMT|BMI|Indeks\\s*Massa\\s*Tubuh)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Rasio berat badan (kg) terhadap kuadrat tinggi badan (m2). • Gizi Buruk (E43): IMT < 16.0 kg/m2 (Dewasa) atau Z-score < -3 SD (Anak). • Gizi Kurang (E44.0): IMT 16.0 - 16.9 kg/m2 atau Z-score -3 s.d -2 SD. Rule: AI menghitung IMT mandiri dari data TB & BB di rekam medis untuk memvalidasi input kode E43 vs E44."
+        },
+        {
+          "name": "LILA / MUAC Lingkar Lengan Atas",
+          "dataType": "Float",
+          "extraction": "(?:LILA|MUAC|Lingkar\\s*Lengan)\\s*[:=]\\s*([0-9.]+)\\s*(?:cm|mm)",
+          "validation": "Kriteria: Ukuran lingkar lengan atas. • Anak usia 6-59 bulan: < 11.5 cm diidentifikasi Gizi Buruk; 11.5 - 12.5 cm Gizi Kurang. Rule: Menapis data LILA untuk mengonfirmasi diagnosis malnutrisi pada lembar asuhan gizi."
+        },
+        {
+          "name": "Penurunan BB Spontan % Weight Loss",
+          "dataType": "Float",
+          "extraction": "(?:Turun\\s*BB|Weight\\s*Loss|Penurunan\\s*BB)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Kriteria: Persentase penurunan berat badan tidak direncanakan dalam 1-6 bulan. Rule: Hitung (%): ((BB Baseline - BB Aktual) / BB Baseline) * 100. Jika penurunan > 5% dalam 1 bulan atau > 10% dalam 6 bulan -> Sahkan kriteria malnutrisi akut."
+        },
+        {
+          "name": "Serum Albumin Kadar Albumin Darah",
+          "dataType": "Float",
+          "extraction": "Albumin\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kadar albumin serum (g/dL). Hipoalbuminemia jika < 3.5 g/dL. Rule: Mengonfirmasi tipe kwashiorkor (E40) jika albumin < 2.8 g/dL disertai edema bilateral. Sistem mendeteksi kecocokan obat terapi: pemberian infus Albumin 20%/25% pada billing."
+        },
+        {
+          "name": "Karakteristik ASPEN Malnutrition Criteria",
+          "dataType": "Int",
+          "extraction": "(?:ASPEN|Kriteria\\s*ASPEN)\\s*[:=]\\s*([0-6])",
+          "validation": "Kriteria: Jumlah temuan klinis berbasis konsensus ASPEN/AND (Asupan energi rendah, penurunan BB, kehilangan lemak subkutan, wasting otot, akumulasi cairan/edema, kekuatan genggam menurun). Rule: Minimal harus terpenuhi 2 dari 6 karakteristik untuk meloloskan diagnosis sekunder malnutrisi."
+        },
+        {
+          "name": "Nilai IMT / BMI",
+          "dataType": "Float",
+          "extraction": "(?:IMT|BMI)\\s*[:=]\\s*([0-9.]+)\\s*(?:kg/m2|)",
+          "validation": "Indeks Massa Tubuh. Gizi buruk jika IMT < 16.0 (E43)."
+        },
+        {
+          "name": "Lingkar Lengan Atas (LLA)",
+          "dataType": "Float",
+          "extraction": "LLA\\s*[:=]\\s*([0-9.]+)\\s*cm",
+          "validation": "Mild: 22-23 cm; Moderate: 19-21.9 cm; Severe: < 19 cm."
+        },
+        {
+          "name": "Penurunan BB Spontan",
+          "dataType": "Float",
+          "extraction": "penurunan\\s*BB\\s*([0-9.]+)%?\\s*(?:dalam|sejak)\\s*([0-9]+)\\s*bulan",
+          "validation": "Dinyatakan malnutrisi jika turun > 10% dalam 6 bln atau > 5% dlm 3 bln."
+        },
+        {
+          "name": "Kriteria ASPEN",
+          "dataType": "Int",
+          "extraction": "Kalkulasi: hitung kriteria ASPEN yang bernilai TRUE (0 s.d. 6)",
+          "validation": "Diagnosis tegak secara klinis jika terpenuhi minimal 2 dari 6 karakteristik ASPEN."
+        },
+        {
+          "name": "Kadar Albumin",
+          "dataType": "Float",
+          "extraction": "Albumin\\s*[:=]\\s*([0-9.]+)\\s*g/dL",
+          "validation": "Severe: < 2.5 g/dL; Moderate: 2.5-2.9 g/dL; Mild: 3.0-3.5 g/dL."
+        },
+        {
+          "name": "Kadar Prealbumin",
+          "dataType": "Float",
+          "extraction": "Prealbumin\\s*[:=]\\s*([0-9.]+)\\s*mg/dL",
+          "validation": "Severe: < 10 mg/dL; Moderate: 10-17 mg/dL; Mild: 18-22 mg/dL."
+        },
+        {
+          "name": "Kwashiorkor Tanda",
+          "dataType": "Boolean",
+          "extraction": "(?:edema\\s*bilateral|ramut\\s*rontok|dispigmentasi\\s*kulit)",
+          "validation": "Tanda spesifik penentu kode E40 (Kwashiorkor)."
+        },
+        {
+          "name": "Marasmus Tanda",
+          "dataType": "Boolean",
+          "extraction": "(?:muscle\\s*wasting\\s*berat|baggy\\s*pants|wajah\\s*orang\\s*tua)",
+          "validation": "Tanda spesifik penentu kode E41 (Marasmus)."
+        },
+        {
+          "name": "Kesesuaian Terapi",
+          "dataType": "Boolean",
+          "extraction": "Pemberian formula khusus (F75 / F100) atau enteral/parenteral nutrition",
+          "validation": "Menjamin keabsahan koding diagnosis sekunder malnutrisi di era JKN."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-07",
+      "title": "KELOMPOK KASUS KATARAK DEWASA (ICD-10: H25-H26 / Prosedur: 13.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Visus Pre-Op Ketajaman Penglihatan",
+          "dataType": "String",
+          "extraction": "(?:Visus|VOD|VOS)\\s*[:=]\\s*([0-9/.]+|LP|NLP)",
+          "validation": "Kriteria: Ketajaman penglihatan terbaik sebelum operasi. Rule: Sesuai KMK 67/2026, operasi dijamin JKN jika visus terbaik < 6/12 dengan pinhole. Jika visus >= 6/12, sistem memverifikasi ada/tidaknya indikasi khusus (pekerjaan ekstrem, anisometropia berat, atau glaukoma sekunder) di lembar rekam medis."
+        },
+        {
+          "name": "Shadow Test Uji Bayangan Lensa",
+          "dataType": "String",
+          "extraction": "(?:Shadow\\s*Test|Tes\\s*Bayangan)\\s*[:=]\\s*(Positif|Negatif|Pseudo-positif)",
+          "validation": "Kriteria: Hasil uji pantulan bayangan iris pada lensa. • Positif: Katarak Imatur (lensa sebagian keruh). • Negatif: Katarak Matur (lensa keruh seluruhnya). Rule: Digunakan untuk menentukan spesifikasi kode katarak (H25.0 vs H25.1)."
+        },
+        {
+          "name": "Teknik Operasi Kategori ICD-9-CM",
+          "dataType": "String",
+          "extraction": "(?:Teknik|Metode|Prosedur)\\s*[:=]\\s*(Phacoemulsification|Fako|ECCE|SICS|ICCE)",
+          "validation": "Kriteria: Prosedur pembedahan pengangkatan katarak. • Phacoemulsification (ICD-9-CM 13.11/13.41): minimal invasif dengan gelombang ultrasonik. • ECCE / SICS (ICD-9-CM 13.59): ekstraksi extracapsular. Rule: Mencocokkan kesesuaian teknik di laporan operasi dengan input tarif klaim billing."
+        },
+        {
+          "name": "Komplikasi PCR Posterior Capsule Rupture",
+          "dataType": "Boolean",
+          "extraction": "(?:PCR|Ruptur\\s*Kapsul|Posterior\\s*Capsule)\\s*[:=]\\s*(Ya|Tidak|Positif|Negatif)",
+          "validation": "Kriteria: Robekan pada kapsul posterior lensa saat operasi. Rule: Jika PCR = Ya -> Verifikasi kelayakan koding tindakan vitrektomi anterior (ICD-9: 14.72/14.74) dan pemasangan IOL sekunder (13.71), serta sah dirawat-inapkan."
+        },
+        {
+          "name": "Visus Pre-Operasi",
+          "dataType": "String",
+          "extraction": "visus\\s*pre-op\\s*([0-9/a-zA-Z\\s]+)",
+          "validation": "Tajam penglihatan sebelum operasi. JKN menjamin jika visus < 6/12."
+        },
+        {
+          "name": "Shadow Test",
+          "dataType": "String",
+          "extraction": "shadow\\s*test\\s*(?:positif|negatif|\\+|-)",
+          "validation": "Positif menandakan katarak senilis imatur; negatif menandakan katarak matur."
+        },
+        {
+          "name": "Kondisi Segmen Posterior",
+          "dataType": "String",
+          "extraction": "(?:visualisasi\\s*fundus\\s*terhalang|fundus\\s*kesulitan\\s*dinilai)",
+          "validation": "Indikasi operasi jika katarak menghalangi visualisasi segmen posterior."
+        },
+        {
+          "name": "Kondisi Cito / Segera",
+          "dataType": "Boolean",
+          "extraction": "(?:glaukoma\\s*fakomorfik|glaukoma\\s*fakolitik|dislokasi\\s*lensa|katarak\\s*matur)",
+          "validation": "Kondisi darurat mata yang mewajibkan operasi segera dilakukan."
+        },
+        {
+          "name": "Teknik Operasi",
+          "dataType": "String",
+          "extraction": "(?:fakoemulsifikasi|SICS|ECCE|ICCE)",
+          "validation": "Metode pengangkatan lensa katarak (fakoemulsifikasi adalah gold standard)."
+        },
+        {
+          "name": "Implantasi IOL",
+          "dataType": "Boolean",
+          "extraction": "implantasi\\s*(?:IOL|lensa\\s*tanam)\\s*(?:berhasil|tidak|ditunda)",
+          "validation": "Jika capsular bag/zonula tidak adekuat, IOL ditunda (Afakia)."
+        },
+        {
+          "name": "Pemasangan IOL Sekunder",
+          "dataType": "Boolean",
+          "extraction": "(?:IOL\\s*sekunder|afakia|subluksasi\\s*IOL)",
+          "validation": "Indikasi pemasangan IOL sekunder pada operasi lanjutan (13.71)."
+        },
+        {
+          "name": "Komplikasi PCR",
+          "dataType": "Boolean",
+          "extraction": "(?:ruptur\\s*kapsul\\s*posterior|PCR\\s*durante\\s*op)",
+          "validation": "Komplikasi sobeknya kantung lensa belakang saat operasi katarak."
+        },
+        {
+          "name": "Opasifikasi Kapsul (PCO)",
+          "dataType": "Boolean",
+          "extraction": "(?:PCO|katarak\\s*sekunder|posterior\\s*capsule\\s*opacification)",
+          "validation": "Penebalan kapsul belakang pasca operasi yang diterapi Nd-YAG Laser kapsulotomi."
+        },
+        {
+          "name": "Kesesuaian Rawat Inap",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika ECCE dengan penyulit DM/HT tak terkontrol, atau usia < 18 tahun -> Sah Ranap",
+          "validation": "Sesuai Panduan Verifikasi JKN Edisi 2 Poin 22."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-08",
+      "title": "KELOMPOK KASUS SINDROM KORONER AKUT (SKA) (ICD-10: I21.- / I20.0)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Waktu Pintu ke EKG Door-to-ECG Time",
+          "dataType": "Int",
+          "extraction": "(?:EKG\\s*Pertama|Door\\s*to\\s*ECG)\\s*[:=]\\s*([0-9]+)\\s*menit",
+          "validation": "Kriteria: Selisih waktu kedatangan di IGD sampai perekaman EKG 12 sadapan pertama. Rule: Sesuai KMK 876/2026, target waktu harus < 10 menit. Sistem menghitung selisih [Jam EKG] minus [Jam Masuk IGD] untuk validasi mutu pelayanan."
+        },
+        {
+          "name": "Elevasi Segmen ST EKG Findings",
+          "dataType": "String",
+          "extraction": "(?:ST\\s*Elevasi|STEMI|NSTEMI|EKG)\\s*[:=]\\s*(Ya|Tidak|ST\\s*Depresi|T\\s*Inverted)",
+          "validation": "Kriteria: Temuan perubahan gelombang listrik jantung. • Ya (STEMI): Elevasi segmen ST di >= 2 sadapan berurutan. • Tidak/ST Depresi/T Inverted (NSTEMI / APTS): Iskemik tanpa elevasi. Rule: STEMI dikode ke rumpun I21.0 - I21.3; NSTEMI dikode I21.4. APTS dikode I20.0."
+        },
+        {
+          "name": "hs-Cardiac Troponin Biomarker Jantung",
+          "dataType": "Float",
+          "extraction": "(?:Troponin|hs-cTn|cTnT|cTnI)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kadar protein troponin jantung spesifik dalam darah. Rule: Kenaikan/penurunan dinamis kadar troponin di atas nilai rujukan persentil ke-99 menetapkan diagnosis Infark Akut (I21.-). Jika troponin normal/negatif, diagnosis diarahkan ke APTS (I20.0)."
+        },
+        {
+          "name": "Kelas Killip Derajat Gagal Jantung SKA",
+          "dataType": "String",
+          "extraction": "(?:Killip|Kelas\\s*Killip)\\s*[:=]\\s*(Class\\s*I+|I|II|III|IV)",
+          "validation": "Kriteria: Klasifikasi keparahan klinis gagal jantung kiri pada SKA. • Killip I: Tidak ada tanda gagal jantung. • Killip II: Ronki basah halus di < 50% lapangan paru atau gallop S3. • Killip III: Edema paru akut (ronki di > 50% lapangan paru). • Killip IV: Syok kardiogenik. Rule: Killip III/IV memvalidasi penambahan diagnosis sekunder ADHF (I50.9) & Syok (R57.0) secara dual coding."
+        },
+        {
+          "name": "Waktu EKG Pertama",
+          "dataType": "DateTime",
+          "extraction": "Tanggal & jam perekaman EKG 12 sadapan pertama di IGD",
+          "validation": "Target PNPK: EKG harus direkam & diinterpretasi < 10 menit dari masuk RS."
+        },
+        {
+          "name": "Hasil EKG",
+          "dataType": "String",
+          "extraction": "(?:ST\\s*elevasi|ST\\s*depresi|T\\s*inversi|Q\\s*patologis|normal)",
+          "validation": "STEMI (ST elevasi), NSTEMI (ST depresi/T inversi), UAP (EKG normal/non-spesifik)."
+        },
+        {
+          "name": "Kadar hs-cTn T/I",
+          "dataType": "Float",
+          "extraction": "hs-cTn\\s*[TI]\\s*[:=]\\s*([0-9.]+)",
+          "validation": "High-sensitivity Cardiac Troponin. Positif jika di atas persentil ke-99."
+        },
+        {
+          "name": "Pola Troponin Serial",
+          "dataType": "String",
+          "extraction": "Logika: jika ada kenaikan/penurunan kadar troponin yang signifikan",
+          "validation": "Membedakan cedera miokard akut (infark) dengan kondisi kronis PGK."
+        },
+        {
+          "name": "Skor TIMI / GRACE",
+          "dataType": "Int",
+          "extraction": "(?:TIMI|GRACE)\\s*(?:score|skor)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Menentukan stratifikasi risiko kematian jangka pendek pasien."
+        },
+        {
+          "name": "Kelas Killip",
+          "dataType": "String",
+          "extraction": "Killip\\s*(?:Class|Kelas)\\s*([I|V]+)",
+          "validation": "Killip I (normal), II (S3/ronki <50%), III (edema paru), IV (syok kardiogenik)."
+        },
+        {
+          "name": "Waktu Fibrinolisis",
+          "dataType": "DateTime",
+          "extraction": "Tanggal & jam pemberian terapi trombolitik (Streptokinase/rtPA)",
+          "validation": "Fibrinolisis wajib diberikan jika onset gejala < 12 jam & PCI tidak tersedia."
+        },
+        {
+          "name": "Kontraindikasi Litik",
+          "dataType": "Boolean",
+          "extraction": "(?:stroke\\s*hemoragik|perdarahan\\s*internal|diseksi\\s*aorta)",
+          "validation": "Kondisi medis penyerta yang melarang pemberian obat trombolitik."
+        },
+        {
+          "name": "Kadar Gula Sewaktu",
+          "dataType": "Int",
+          "extraction": "GDS\\s*[:=]\\s*([0-9]+)\\s*mg/dL",
+          "validation": "Target PNPK: pertahankan glukosa darah < 200 mg/dL (hindari hipoglikemia)."
+        },
+        {
+          "name": "Fungsi Ginjal (eGFR)",
+          "dataType": "Float",
+          "extraction": "eGFR\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Menentukan pengaturan dosis obat antitrombotik & volume kontras selama IKP."
+        }
+      ]
+    },
+    {
+      "id": "JKN-BA-20",
+      "title": "KURETASE SISA KONSEPSI VS GINEKOLOGI (ICD-10: O02-O08 / Prosedur: 69.02 vs 69.09)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Jenis Kasus Obstetri vs Ginekologi",
+          "dataType": "String",
+          "extraction": "(?:Kategori|Jenis\\s*Kasus)\\s*[:=]\\s*(Obstetri|Abortus|Sisa\\s*Konsepsi|Ginekologi|Menoragia)",
+          "validation": "Kriteria: Klasifikasi medis indikasi dilakukannya kuretase. • Obstetri (Abortus, sisa konsepsi, sisa plasenta): wajib dikode tindakan ICD-9-CM 69.02. • Ginekologi (Hiperplasia endometrium, polip, menoragia): dikode tindakan 69.09. Rule: Sistem mendeteksi keselarasan Diagnosis Utama dengan Kode Prosedur. Jika DU Abortus tapi kodenya 69.09, AI otomatis mengubah ke 69.02 (Aturan Eksklusi JKN)."
+        },
+        {
+          "name": "Ketebalan Endometrium Pencitraan USG",
+          "dataType": "Float",
+          "extraction": "(?:Tebal\\s*Endometrium|USG\\s*Uterus)\\s*[:=]\\s*([0-9.]+)\\s*(?:mm|cm)",
+          "validation": "Kriteria: Ketebalan lapisan dinding rahim bagian dalam. Rule: Pada kasus ginekologi murni (pendarahan uterus abnormal), ketebalan endometrium > 10 mm (premenopause) atau > 5 mm (pasca-menopause) menjadi pembenaran medis kuretase diagnostik (69.09)."
+        },
+        {
+          "name": "Pemeriksaan PA Histopatologi Jaringan",
+          "dataType": "Boolean",
+          "extraction": "(?:PA|Patologi\\s*Anatomi|Hasil\\s*PA)\\s*[:=]\\s*(Ya|Tidak|Positif|Negatif)",
+          "validation": "Kriteria: Pengiriman jaringan hasil kerokan kuret ke lab Patologi Anatomi. Rule: Kasus kuretase diagnostik (69.09) wajib melampirkan lembar hasil PA. Jika PA = Tidak, AI memunculkan warning potensial dispute pending klaim."
+        },
+        {
+          "name": "Diagnosis Utama (DU)",
+          "dataType": "String",
+          "extraction": "(?:abortus\\s*inkomplit|missed\\s*abortion|sisa\\s*plasenta|perdarahan\\s*disfungsional)",
+          "validation": "DU menentukan rumpun tindakan (obstetri vs ginekologi)."
+        },
+        {
+          "name": "Teks Laporan Operasi",
+          "dataType": "String",
+          "extraction": "(?:kuret\\s*tajam|kuret\\s*aspirasi|evakuasi\\s*sisa\\s*konsepsi|D\\s*and\\s*C)",
+          "validation": "Menjabarkan rincian teknik tindakan di kamar operasi."
+        },
+        {
+          "name": "Ketebalan Endometrium",
+          "dataType": "Float",
+          "extraction": "(?:ketebalan\\s*endometrium|endometrial\\s*thickness)\\s*[:=]\\s*([0-9.]+)\\s*mm",
+          "validation": "Hasil USG transvaginal menunjukkan adanya hiperplasia atau retensi sisa jaringan."
+        },
+        {
+          "name": "Kode Tindakan Input",
+          "dataType": "String",
+          "extraction": "Logika: jika DU abortus/sisa plasenta -> 69.02; jika ginekologi murni -> 69.09",
+          "validation": "Kaidah JKN: melarang keras klaim kode 69.09 untuk kasus sisa konsepsi persalinan/abortus."
+        },
+        {
+          "name": "Aspirasi Kuretase",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika laporan menyebutkan kuret isap/aspirasi vakum -> 69.51 / 69.52",
+          "validation": "Mengunci kode vacuum aspiration untuk mencegah kesalahan koding tajam (D&C)."
+        },
+        {
+          "name": "Pemeriksaan PA Jaringan",
+          "dataType": "Boolean",
+          "extraction": "Pemeriksaan patologi anatomi terhadap kerokan endometrium",
+          "validation": "Wajib dilampirkan pada kasus ginekologi murni (DU hiperplasia/neoplasma)."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-09",
+      "title": "KELOMPOK KASUS GAGAL GINJAL (AKI / CKD) (ICD-10: N17 / N18)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Kreatinin Serum Baseline & Peak",
+          "dataType": "Float",
+          "extraction": "(?:Kreatinin|Cr|Serum\\s*Kreatinin)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kadar kreatinin dalam darah untuk menghitung fungsi ginjal. Rule (AKI/N17): Jika ada peningkatan kreatinin >= 0.3 mg/dL dalam 48 jam atau peningkatan >= 1.5 kali nilai baseline dalam 7 hari -> Validasi diagnosis AKI. Sistem menghitung rasio otomatis dari lembar laboratorium serial."
+        },
+        {
+          "name": "eGFR Laju Filtrasi Glomerulus",
+          "dataType": "Float",
+          "extraction": "(?:eGFR|LFG|GFR)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Laju penyaringan ginjal yang dihitung menggunakan rumus CKD-EPI (dewasa) atau Schwartz (anak). Rule (CKD/N18): Nilai eGFR < 60 mL/menit/1.73m2 yang bertahan selama >= 3 bulan mengonfirmasi diagnosis CKD. Sistem mengelompokkan stadium CKD otomatis: eGFR 15-29 (CKD Stage 4 / N18.4), eGFR < 15 (CKD Stage 5 / N18.5)."
+        },
+        {
+          "name": "Rasio ACR Urine Albumin-to-Creatinine",
+          "dataType": "Float",
+          "extraction": "(?:ACR|Rasio\\s*Albumin\\s*Kreatinin)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Rasio protein albumin terhadap kreatinin urin sewaktu pagi hari. Rule: Kadar ACR > 30 mg/g mengonfirmasi adanya kerusakan ginjal stadium awal meskipun nilai eGFR masih normal (>= 60)."
+        },
+        {
+          "name": "Hipertensi-Ginjal Kode Kombinasi JKN",
+          "dataType": "Boolean",
+          "extraction": "(?:Hipertensi\\s*Ginjal|Kode\\s*Gabung|I12)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Kriteria: Penggabungan kode untuk kasus Hipertensi + Penyakit Ginjal. Rule (BA 2023): Jika pasien menderita Hipertensi (I10) dan CKD (N18), sistem wajib melakukan penggabungan kode otomatis ke kode tunggal I12.0 (dengan gagal ginjal) atau I12.9 (tanpa gagal ginjal). Eksklusi: Jika penyertanya AKI (N17), dilarang digabung dan dikode terpisah."
+        },
+        {
+          "name": "Kreatinin Serum Awal",
+          "dataType": "Float",
+          "extraction": "Kreatinin\\s*Baseline\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar kreatinin dasar pasien sebelum sakit akut."
+        },
+        {
+          "name": "Kreatinin Serum Peak",
+          "dataType": "Float",
+          "extraction": "Kreatinin\\s*Peak\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kadar kreatinin tertinggi yang dicapai selama rawat inap."
+        },
+        {
+          "name": "Kalkulasi Rasio Cr",
+          "dataType": "Float",
+          "extraction": "Kalkulasi: [Kreatinin Peak] / [Kreatinin Baseline]",
+          "validation": "Rasio peningkatan kreatinin untuk penentuan stage AKI."
+        },
+        {
+          "name": "Keluaran Urine",
+          "dataType": "Float",
+          "extraction": "Urine\\s*output\\s*([0-9.]+)\\s*ml/kg/jam",
+          "validation": "Volume urine per kg berat badan per jam selama 6-24 jam terakhir."
+        },
+        {
+          "name": "Tahap AKI (KDIGO)",
+          "dataType": "Int",
+          "extraction": "Logika: jika Cr naik >= 0.3 mg/dL dlm 48 jam -> Stage 1; jika naik 2-3x -> Stage 2; jika naik >3x -> Stage 3",
+          "validation": "Menentukan tingkat keparahan Gagal Ginjal Akut (N17.-)."
+        },
+        {
+          "name": "Nilai eGFR",
+          "dataType": "Float",
+          "extraction": "eGFR\\s*[:=]\\s*([0-9.]+)\\s*ml/min/1.73m2",
+          "validation": "Kalkulasi CKD-EPI (dewasa) atau Schwartz (anak). Menentukan stage CKD (N18.-)."
+        },
+        {
+          "name": "Rasio Albumin Kreatinin",
+          "dataType": "Float",
+          "extraction": "ACR\\s*[:=]\\s*([0-9.]+)\\s*mg/g",
+          "validation": "Kategori Albuminuria persisten: A1 (<30), A2 (30-300), A3 (>300)."
+        },
+        {
+          "name": "Kadar Hemoglobin",
+          "dataType": "Float",
+          "extraction": "Hb\\s*[:=]\\s*([0-9.]+)\\s*g/dL",
+          "validation": "Evaluasi anemia renal (anemia lazim terjadi jika eGFR < 60 ml/min)."
+        },
+        {
+          "name": "Indikasi Dialisis Cito",
+          "dataType": "Boolean",
+          "extraction": "(?:serositis|hiperkalemia\\s*refrakter|asidosis\\s*berat|overload\\s*cairan)",
+          "validation": "Alasan medis penegakan tindakan Hemodialisis darurat di ICU/HD."
+        },
+        {
+          "name": "Kesesuaian Kode I12",
+          "dataType": "Boolean",
+          "extraction": "Logika: jika DU Hipertensi + CKD -> gabung ke kode I12.-, AKI (N17) dilarang digabung",
+          "validation": "Menghindari audit kesalahan koding gabung penyakit jantung-ginjal hipertensi."
+        }
+      ]
+    },
+    {
+      "id": "JKN-BA-21",
+      "title": "PELAYANAN REHABILITASI MEDIK / FISIOTERAPI (Prosedur: 93.1 - 93.3)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Barthel Index Skala Fungsional ADL",
+          "dataType": "Int",
+          "extraction": "(?:Barthel|Barthel\\s*Index|Skor\\s*Barthel)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Kriteria: Pengukuran tingkat kemandirian fungsional pasien (skala 0-20). Rule: Skor awal (pre-terapi) dan skor akhir (post-terapi) wajib dicatat oleh Spesialis KFR di lembar rekam medis. Kenaikan skor membuktikan keberhasilan/efektivitas asuhan terapi fisik yang diberikan."
+        },
+        {
+          "name": "Kekuatan Otot Skala MMT / MRC",
+          "dataType": "Int",
+          "extraction": "(?:Kekuatan\\s*Otot|MMT|MRC)\\s*[:=]\\s*([0-5])\\s*/\\s*5",
+          "validation": "Kriteria: Derajat kekuatan kelompok otot motorik utama (skala 0-5). Rule: Kelumpuhan/kelemahan otot (skala <= 3) merupakan indikasi medis mutlak dilakukannya terapi latihan/fisioterapi aktif. Sistem memverifikasi kesesuaian diagnosis stroke/neuropati dengan derajat kelemahan otot."
+        },
+        {
+          "name": "LGS / ROM Lingkup Gerak Sendi",
+          "dataType": "String",
+          "extraction": "(?:LGS|ROM|Lingkup\\s*Gerak)\\s*[:=]\\s*(Terbatas|Bebas|Normal|Abnormal)",
+          "validation": "Kriteria: Derajat fleksibilitas gerakan sendi. Rule: Keterbatasan ROM sendi mayor (bahu, lutut, panggul) akibat kontraktur atau pasca-trauma divalidasi sebagai indikasi koding terapi mobilisasi sendi (93.16)."
+        },
+        {
+          "name": "Frekuensi Sesi Kunjungan Terapi",
+          "dataType": "Int",
+          "extraction": "(?:Jumlah\\s*Terapi|Frekuensi|Sesi)\\s*[:=]\\s*([0-9]+)\\s*kali",
+          "validation": "Kriteria: Jumlah total sesi fisioterapi yang didapatkan pasien dalam 1 bulan. Rule: Sistem melacak kesesuaian jumlah terapi kumulatif terhadap plafon batasan penjaminan BPJS lokal (misalnya batas 8 kali per bulan) untuk mendeteksi over-utilization."
+        },
+        {
+          "name": "Pemeriksaan Sp.KFR",
+          "dataType": "Boolean",
+          "extraction": "Ada tidaknya asesmen tertulis dari dokter spesialis KFR pada lembar resep",
+          "validation": "Syarat mutlak keabsahan klaim Rehabilitasi Medik sesuai Peraturan JKN."
+        },
+        {
+          "name": "Skala Fungsional",
+          "dataType": "String",
+          "extraction": "(?:Barthel\\s*Index|FIM|ICU\\s*Mobility\\s*Scale)",
+          "validation": "Mengukur kemandirian aktivitas kehidupan sehari-hari (Aktivitas Mandiri/Ketergantungan)."
+        },
+        {
+          "name": "Uji Lingkup Gerak (LGS)",
+          "dataType": "Int",
+          "extraction": "LGS\\s*([0-9.]+)\\s*derajat",
+          "validation": "Mengukur keterbatasan pergerakan sendi terkait postur."
+        },
+        {
+          "name": "Kekuatan Otot (MRC)",
+          "dataType": "Int",
+          "extraction": "MRC\\s*([0-5])/5",
+          "validation": "Skala kekuatan otot fungsional (untuk deteksi ICU-acquired weakness)."
+        },
+        {
+          "name": "Tingkat Nyeri",
+          "dataType": "Int",
+          "extraction": "(?:VAS|NRS)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Mengukur keparahan nyeri sebelum vs sesudah terapi."
+        },
+        {
+          "name": "Modalitas Fisik",
+          "dataType": "String",
+          "extraction": "(?:TENS|USD|IR|diatermi|cryotherapy)",
+          "validation": "Alat terapi fisik yang digunakan (waspada: diatermi kontraindikasi pada tumor)."
+        },
+        {
+          "name": "Frekuensi Sesi / Bulan",
+          "dataType": "Int",
+          "extraction": "([0-9]+)\\s*kali\\s*terapi\\s*per\\s*bulan",
+          "validation": "Kesesuaian jumlah kunjungan terapi terhadap plafon JKN (misal max 8x/bulan)."
+        },
+        {
+          "name": "Toleransi Kardiopulmonal",
+          "dataType": "Boolean",
+          "extraction": "(?:hemodinamik\\s*stabil|uji\\s*jalan\\s*6\\s*menit)",
+          "validation": "Menilai kelayakan pasien sebelum melakukan latihan ketahanan/aerobik berat."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-10",
+      "title": "KELOMPOK KASUS DIABETES MELLITUS TIPE 2 DEWASA (ICD-10: E11.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "GDP Glukosa Darah Puasa",
+          "dataType": "Float",
+          "extraction": "(?:GDP|Fasting\\s*Glucose|(?:Gula|Glukosa)\\s*Darah\\s*Puasa)\\s*[:=]\\s*([0-9.,]+)",
+          "validation": "Kriteria: Kadar glukosa plasma puasa (minimal 8 jam tanpa asupan kalori). Rule: Diagnosis DM tegak jika GDP >= 126 mg/dL. Kategori Prediabetes jika GDP 100-125 mg/dL. (Derajat Rekomendasi B)."
+        },
+        {
+          "name": "GD2PP Glukosa 2 Jam PP",
+          "dataType": "Float",
+          "extraction": "(?:GD2PP|2-hour\\s*PP|(?:Gula\\s*Darah|Glukosa)\\s*2\\s*Jam\\s*PP)\\s*[:=]\\s*([0-9.,]+)",
+          "validation": "Kriteria: Kadar glukosa plasma 2 jam setelah beban TTGO 75 gram. Rule: Diagnosis DM tegak jika GD2PP >= 200 mg/dL. Kategori Prediabetes (TGT) jika GD2PP 140-199 mg/dL. (Derajat Rekomendasi B)."
+        },
+        {
+          "name": "GDS dengan Gejala Glukosa Darah Sewaktu",
+          "dataType": "Float",
+          "extraction": "(?:GDS|Random\\s*Glucose|(?:Gula|Glukosa)\\s*Darah\\s*Sewaktu(?:\\s+Stick(?:\\s+[1-9](?=\\s+[0-9]))?)?)\\s*[:=]\\s*([0-9.,]+)",
+          "validation": "Kriteria: Kadar glukosa plasma sewaktu. Rule: Diagnosis DM jika GDS >= 200 mg/dL disertai keluhan klasik (poliuria, polidipsia, polifagia, penurunan berat badan yang tidak dapat dijelaskan)."
+        },
+        {
+          "name": "HbA1c Glycated Hemoglobin",
+          "dataType": "Float",
+          "extraction": "(?:HbA1c|A1C)\\s*[:=]\\s*([0-9.]+)%?",
+          "validation": "Kriteria: Kadar hemoglobin terglikasi menggunakan metode HPLC terstandarisasi NGSP. Rule: Diagnosis DM jika HbA1c >= 6.5%. Kategori Prediabetes jika HbA1c 5.7 - 6.4%. (Derajat Rekomendasi B). Eksklusi: HbA1c tidak valid pada kondisi anemia sel sabit, kehamilan, hemodialisis, perdarahan akut, transfusi darah baru, atau terapi eritropoetin."
+        },
+        {
+          "name": "Rasio ACR Urine Albumin-to-Creatinine",
+          "dataType": "Float",
+          "extraction": "(?:ACR|Rasio\\s*Albumin\\s*Kreatinin)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Pemeriksaan penapisan komplikasi ginjal (nefropati diabetik) setidaknya sekali setahun. Rule: Albuminuria/kerusakan ginjal jika ACR >= 30 mg/g (atau protein dipstick >= +1). Jika ACR >= 300 mg/g (makroalbuminuria), berikan terapi ACEi/ARB."
+        },
+        {
+          "name": "Monofilamen 10 gram Skrining Neuropati",
+          "dataType": "Boolean",
+          "extraction": "(?:Monofilamen|Tes\\s*Monofilamen|Skrining\\s*Neuropati)\\s*[:=]\\s*(Normal|Abnormal|Sensitif|Kebas)",
+          "validation": "Kriteria: Pemeriksaan tahunan untuk neuropati perifer distal simetris. Rule: Pemeriksaan fisis saraf kaki menggunakan monofilamen 10 gram. Jika hilangnya sensasi distal -> Sahkan koding komplikasi neuropati diabetik (E11.4)."
+        },
+        {
+          "name": "Retinopati Diabetik Skrining Funduskopi",
+          "dataType": "Boolean",
+          "extraction": "(?:Retinopati|Funduskopi|Foto\\s*Fundus)\\s*[:=]\\s*(Ya|Tidak|Positif|Negatif)",
+          "validation": "Kriteria: Pemeriksaan penapisan komplikasi mata pada saat diagnosis DM ditegakkan. Rule: Melalui pemeriksaan funduskopi komprehensif oleh spesialis mata. Jika ditemukan mikroaneurisma/perdarahan retina -> Sahkan koding komplikasi retinopati diabetik (E11.3)."
+        },
+        {
+          "name": "Kriteria Insulin Indikasi Klinis",
+          "dataType": "Boolean",
+          "extraction": "(?:Indikasi\\s*Insulin|Terapi\\s*Insulin)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Kriteria: Indikasi mutlak inisiasi insulin pada pasien DM tipe 2. Rule: Diindikasikan jika HbA1c > 9% dengan gejala katabolik berat, GDP >= 300 mg/dL, ketosis/KAD, kegagalan OAD kombinasi 3 macam obat, kehamilan, atau gangguan ginjal/hati berat."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PNPK-11",
+      "title": "KELOMPOK KASUS KARSINOMA SEL HATI / KSH (ICD-10: C22.0)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "AFP Alpha-Fetoprotein",
+          "dataType": "Float",
+          "extraction": "AFP\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kadar penanda tumor serum glikoprotein. Rule: Nilai cutoff AFP >= 200 ng/mL cenderung meningkat sangat mencurigakan KSH pada pasien sirosis/hepatitis. Namun cutoff skrining awal menggunakan 10 ng/mL."
+        },
+        {
+          "name": "PIVKA-II Des-g-Carboxy-Prothrombin",
+          "dataType": "Float",
+          "extraction": "(?:PIVKA-II|PIVKA2|DCP)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kadar penanda tumor spesifik protrombin abnormal. Rule: Nilai cutoff PIVKA-II >= 40 mAU/mL digunakan untuk penegakan diagnosis & surveilans KSH. Kombinasi PIVKA-II (>= 40) dan AFP (>= 10) memberikan akurasi diagnostik terbaik pada sirosis hati."
+        },
+        {
+          "name": "Child-Pugh Score Derajat Fungsi Hati",
+          "dataType": "String",
+          "extraction": "(?:Child-Pugh|Skor\\s*Child-Pugh)\\s*[:=]\\s*([A-C])\\s*(?:[0-9]+|)",
+          "validation": "Kriteria: Klasifikasi fungsi hati berdasarkan bilirubin, albumin, INR, asites, dan ensefalopati. • Child-Pugh A atau B-7: fungsi hati masih baik, memenuhi syarat untuk hepatektomi / TACE. • Child-Pugh B-8/9 atau C: indikasi terapi sistemik / suportif (Best Supportive Care)."
+        },
+        {
+          "name": "Stadium BCLC Barcelona Clinic Liver Cancer",
+          "dataType": "String",
+          "extraction": "(?:BCLC|Stadium\\s*BCLC)\\s*[:=]\\s*(Stage\\s*[0-D]|[0-D])",
+          "validation": "Kriteria: Klasifikasi stadium klinis yang memandu algoritma terapi. • Stadium 0 (Sangat Awal): Soliter < 2cm, Child-Pugh A, ECOG 0 -> Reseksi / Ablasi. • Stadium A (Awal): Soliter atau <= 3 nodul <= 3cm, Child-Pugh A/B -> Reseksi/Transplantasi/Ablasi. • Stadium B (Menengah): Multinodul, Child-Pugh A/B, ECOG 0 -> TACE / TACE+SBRT. • Stadium C (Lanjut): Invasi vaskular / metastasis, Child-Pugh A/B, ECOG 0-2 -> Terapi Sistemik. • Stadium D (Terminal): Child-Pugh C, ECOG 3-4 -> Best Supportive Care / Transplantasi."
+        },
+        {
+          "name": "ECOG PS Performance Status",
+          "dataType": "Int",
+          "extraction": "(?:ECOG|Performance\\s*Status|PS)\\s*[:=]\\s*([0-4])",
+          "validation": "Kriteria: Status performa fisik pasien (Eastern Cooperative Oncology Group). Rule: ECOG 0-1 wajib terpenuhi untuk terapi bedah/reseksi & lokoregional (TACE/SBRT). ECOG 0-2 untuk terapi sistemik (sorafenib/lenvatinib/atezolizumab-bevacizumab)."
+        },
+        {
+          "name": "CT/MRI 3-Fase Kriteria Radiologis",
+          "dataType": "String",
+          "extraction": "(?:Hipervaskular|Washout|Contrast-Enhanced)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Gambaran radiologis khas untuk penegakan karsinoma sel hati. Rule: Wajib terbukti adanya Hipervaskularisasi pada fase arterial (arterial hyperenhancement) dan washout pada fase vena porta atau fase delayed (delayed washout). Jika kriteria radiologi 3-fase positif, biopsi hati tidak wajib dilakukan."
+        },
+        {
+          "name": "Kriteria Milan Kelayakan Transplantasi",
+          "dataType": "Boolean",
+          "extraction": "(?:Kriteria\\s*Milan|Milan\\s*Criteria)\\s*[:=]\\s*(Memenuhi|Tidak)",
+          "validation": "Kriteria: Kriteria kelayakan transplantasi hati pada pasien sirosis dekompensata. Rule: Memenuhi kriteria jika Tumor Soliter < 5 cm ATAU <= 3 nodul dengan ukuran masing-masing <= 3 cm, tanpa invasi vaskular & tanpa penyebaran ekstrahepatik. (Rekomendasi A1)."
+        },
+        {
+          "name": "Respons mRECIST Kriteria Evaluasi Terapi",
+          "dataType": "String",
+          "extraction": "(?:mRECIST|Respons\\s*Terapi)\\s*[:=]\\s*(CR|PR|SD|PD)",
+          "validation": "Kriteria: Penilaian respons tumor viable pasca-terapi lokoregional/sistemik. • Complete Response (CR): Hilangnya penyangatan arterial intratumoral pada semua lesi. • Partial Response (PR): Penurunan diameter lesi target viable >= 30%. • Stable Disease (SD): Kasus di antara PR dan PD. • Progressive Disease (PD): Peningkatan diameter lesi target viable >= 20% atau muncul lesi baru."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-20",
+      "title": "PENYAKIT SALURAN AKAR (PSA) / KELAINAN JARINGAN PULPA & PERIRADIKULER (ICD-10: K04.-)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Diagnosis Pulpa Kondisi Jaringan Pulpa",
+          "dataType": "String",
+          "extraction": "(?:Diagnosis\\s*Pulpa|Kondisi\\s*Pulpa)\\s*[:=]\\s*(Pulpitis\\s*Reversibel|Pulpitis\\s*Irreversibel|Nekrosis\\s*Pulpa)",
+          "validation": "Kriteria: Status patologi jaringan pulpa gigi. • Pulpitis Irreversibel: Pulpa meradang parah, nyeri spontan tajam bertahan lama setelah stimulus hilang, membutuhkan terapi saluran akar (pulpektomi). • Nekrosis Pulpa: Pulpa mati, tes vitalitas negatif, karies luas, memerlukan perawatan saluran akar/PSA."
+        },
+        {
+          "name": "Diagnosis Periradikuler Jaringan Sekitar Akar",
+          "dataType": "String",
+          "extraction": "(?:Diagnosis\\s*Periradikuler|Periapikal)\\s*[:=]\\s*(Periodontitis|Abses\\s*Apikal|Kista\\s*Radikuler)",
+          "validation": "Kriteria: Status patologi jaringan penyokong sekitar apeks akar. • Periodontitis Apikal Akut: Senditif/nyeri jika gigi diketuk atau ditekan. • Abses Apikal Akut: Pembengkakan lokal, fluktuasi, adanya nanah, demam. • Kista Radikuler: Rongga patologis berlapis epitel akibat nekrosis pulpa kronik."
+        },
+        {
+          "name": "Kode Prosedur ICD-9-CM Root Canal Therapy",
+          "dataType": "String",
+          "extraction": "(?:Kode\\s*Prosedur|Tindakan\\s*PSA)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kode klasifikasi tindakan kedokteran gigi. • 23.70: Perawatan saluran akar (PSA) / pulpektomi (termasuk extirpasi, preparasi, medikamen). • 23.71: Apeksifikasi (pembentukan barrier jaringan keras pada apeks terbuka anak). • 23.73: Apikoektomi (bedah reseksi ujung akar). • 23.2: Restorasi gigi pasca-PSA (tumpatan resin, mahkota jaket/crown)."
+        },
+        {
+          "name": "Tes Vitalitas Pulpa Pemeriksaan Klinis Gigi",
+          "dataType": "String",
+          "extraction": "(?:Tes\\s*Vitalitas|Tes\\s*Termal|EPT)\\s*[:=]\\s*(Positif|Negatif|Normal|Abnormal)",
+          "validation": "Kriteria: Pengujian respon saraf gigi menggunakan stimulus dingin (kloretil) atau Electric Pulp Tester (EPT). Rule: Tes Vitalitas Negatif mengonfirmasi Nekrosis Pulpa. Tes Vitalitas Positif-Sangat Nyeri mengonfirmasi Pulpitis Irreversibel."
+        },
+        {
+          "name": "Radiografi Periapikal Pencitraan Gigi",
+          "dataType": "String",
+          "extraction": "(?:Rontgen\\s*Gigi|Radiografi|Rontgen\\s*Periapikal)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Hasil foto rontgen gigi untuk melihat saluran akar. Rule: Mengidentifikasi jumlah saluran akar, kavitasi karies pulpa, pelebaran ruang ligamen periodontal, kerusakan tulang alveolar periapikal (radiolusensi periapikal), atau fraktur akar."
+        },
+        {
+          "name": "Jumlah Kunjungan Sesi Perawatan",
+          "dataType": "Int",
+          "extraction": "(?:Jumlah\\s*Kunjungan|Sesi)\\s*[:=]\\s*([0-9]+)",
+          "validation": "Kriteria: Frekuensi kedatangan pasien untuk menyelesaikan prosedur PSA. Rule: PSA dapat berupa kunjungan tunggal (one-visit) jika saluran akar steril dan kering, atau kunjungan ganda (multi-visit) jika ada eksudasi aktif, abses, atau anatomi saluran akar kompleks."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PPK-01",
+      "title": "PROSEDUR BEDAH JANTUNG ANAK & KONGENITAL (BTKV) (PPK BTKV 2024-2027)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Jenis Kelainan Penyakit Jantung Bawaan",
+          "dataType": "String",
+          "extraction": "(?:Kelainan\\s*Kongenital|Diagnosis\\s*PJB)\\s*[:=]\\s*(ASD|VSD|TGA|TOF|DORV)",
+          "validation": "Kriteria: Jenis kelainan anatomi jantung bawaan (PJB). • ASD: Atrial Septal Defect. VSD: Ventricular Septal Defect. • TGA: Transposition of Great Arteries. TOF: Tetralogy of Fallot. Rule: Digunakan untuk mencocokkan kode diagnosis utama Bab XVII (Q20-Q24)."
+        },
+        {
+          "name": "Kode Prosedur ICD-9-CM Pembedahan Kardiotoraks",
+          "dataType": "String",
+          "extraction": "(?:Kode\\s*Bedah|ICD-9-CM\\s*Bedah)\\s*[:=]\\s*([0-9.]+)",
+          "validation": "Kriteria: Kode tindakan operasi bedah jantung. • 35.51 - 35.53: Perbaikan sekat jantung (VSD/ASD closure). • 35.21 - 35.24: Bedah penggantian katup jantung. • 39.61: Penggunaan mesin pintas jantung paru (Cardiopulmonary Bypass/CPB). • 39.27: Pembuatan AV fistula / shunt. • 39.42: Revisi AV shunt dialysis."
+        },
+        {
+          "name": "Modified BTT Shunt Tindakan Paliatif",
+          "dataType": "String",
+          "extraction": "(?:BTT\\s*Shunt|BT\\s*Shunt)\\s*[:=]\\s*(Sternotomy|Thoracotomy|PTFE\\s*Tube)",
+          "validation": "Kriteria: Tindakan menghubungkan cabang aorta ke arteri pulmonal menggunakan PTFE tube guna meningkatkan aliran darah pulmonal & saturasi oksigen. Rule: Diindikasikan pada PJB sianotik berat dengan aliran darah pulmonal kurang (seperti TOF atau atresia pulmonal)."
+        },
+        {
+          "name": "Glenn Shunt / BCPS Glenn Anastomosis",
+          "dataType": "String",
+          "extraction": "(?:Glenn\\s*Shunt|BCPS)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Bidirectional Cavopulmonary Shunt, yaitu menghubungkan vena cava superior ke arteri pulmonalis. Rule: Terapi paliatif lanjutan pada pasien univentricle heart (jantung satu bilik) di atas usia 6 bulan."
+        },
+        {
+          "name": "Kriteria BCPS Fisiologis Pulmoner",
+          "dataType": "String",
+          "extraction": "(?:Tekanan\\s*Arteri|PARi|Konfluens)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Parameter fisiologis kelayakan Glenn Shunt. Rule: Memenuhi syarat jika Tekanan Arteri Pulmoner Rerata < 20 mmHg, Pulmonary Arteriolar Resistance index (PARi) < 4 Woods Unit.m2, dan arteri pulmoner konfluens dengan diameter adekuat."
+        },
+        {
+          "name": "Arterial Switch (ASO) Anatomical Repair TGA",
+          "dataType": "String",
+          "extraction": "(?:ASO|Arterial\\s*Switch)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Tindakan rekonstruksi anatomis biventrikular dengan menukar posisi aorta dan arteri pulmonal beserta pembuluh darah koroner. Rule: Diindikasikan utama untuk kasus TGA-IVS (Intact Ventricular Septum) atau TGA-VSD."
+        },
+        {
+          "name": "Kontraindikasi ASO Ketebalan Dinding LV",
+          "dataType": "String",
+          "extraction": "(?:LVPW|LV\\s*mass\\s*index)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Parameter kelayakan ventrikel kiri untuk memompa ke sirkulasi sistemik pasca-ASO. Rule: Kontraindikasi absolut pada TGA-IVS jika ketebalan dinding belakang LV (LVPW) < 3 mm, atau LV mass index < 40 g/m2 (ventrikel kiri sudah tipis & lemah, tidak mampu memompa sistemik)."
+        },
+        {
+          "name": "Target Antikoagulan Terapi Post-Op",
+          "dataType": "String",
+          "extraction": "(?:Target\\s*INR|Antikoagulan|Dosis\\s*Aspilet)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Terapi pencegahan trombosis pasca-operasi katup/conduit. • Katup mekanik: wajib diberikan Warfarin/Simarc dengan target INR 1.5 - 2.5. • Katup bio / Contegra: diberikan Aspilet dosis 5 mg/kgBB setelah ekstubasi & diet oral baik."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-21",
+      "title": "KELOMPOK KASUS VITREKTOMI & PROSEDUR VITREORETINAL KOMPLEKS",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "Blueprint vitrektomi pengguna (25 Agustus 2026)",
+      "parameters": [
+        {
+          "name": "Visus Pre-Operasi",
+          "dataType": "String",
+          "extraction": "(?:visus|tajam\\s*penglihatan)(?:\\s*(?:pre[- ]?op(?:erasi)?|sebelum\\s*operasi))?(?:\\s*(?:OD|OS|O[D5S]|kanan|kiri))?\\s*[:=]?\\s*(hand\\s*motion|light\\s*perception|no\\s*light\\s*perception|projection|[0-9]+\\s*/\\s*[0-9]+|HM|LP|NLP)",
+          "validation": "Ambil visus pre-operasi beserta lateralisasi OD/OS bila tersedia; jangan menyimpulkan indikasi hanya dari visus."
+        },
+        {
+          "name": "Tekanan Intraokular TIO",
+          "dataType": "Float",
+          "extraction": "(?:TIO|tekanan\\s*intraokular)(?:\\s*(?:OD|OS|kanan|kiri))?\\s*[:=]\\s*([0-9.,]+)\\s*(?:mmHg)?",
+          "validation": "Tandai hipotoni berat bila <6 mmHg dan hipertensi okular bila >21 mmHg; interpretasi tetap memerlukan konteks klinis dan lateralisasi."
+        },
+        {
+          "name": "Indikasi Utama Bedah Vitreoretinal",
+          "dataType": "String",
+          "extraction": "(perdarahan\\s*vitreus|vitreous\\s*h(?:a?e)?morrhage|ablasio\\s*retina(?:\\s*traksional)?|retinal\\s*detachment|endoftalmitis|ruptur\\s*kapsul\\s*posterior|posterior\\s*capsule\\s*rupture)",
+          "validation": "Indikasi harus tertulis pada resume/laporan operasi. Singkatan PCR hanya dianggap posterior capsule rupture bila berada dalam konteks operasi katarak/ruptur kapsul, bukan pemeriksaan laboratorium."
+        },
+        {
+          "name": "Durasi Gejala Vitreoretinal",
+          "dataType": "Float",
+          "extraction": "(?:durasi\\s*(?:gejala|keluhan)|keluhan\\s*sejak|menetap\\s*selama|sejak)\\s*[:=]?\\s*([0-9.,]+)\\s*(hari|minggu|bulan|bln)",
+          "validation": "Untuk perdarahan vitreus non-cito, cek durasi, sifat menetap, dan tidak adanya resorpsi spontan. Ambang maksimal 6 bulan berasal dari blueprint pengguna dan harus divalidasi terhadap acuan resmi setempat."
+        },
+        {
+          "name": "Penggunaan Tamponade Vitreus",
+          "dataType": "String",
+          "extraction": "(silicone\\s*oil|minyak\\s*silikon|gas\\s*C3F8|C3F8|SF6|tamponade)",
+          "validation": "Bukti eksplisit bahan tamponade menjadi kandidat validasi kode 14.75; kode tidak ditambahkan otomatis."
+        },
+        {
+          "name": "Tindakan Peeling Membran",
+          "dataType": "Boolean",
+          "extraction": "(peeling\\s*(?:membran|ILM)|ILM\\s*peeling|epiretinal\\s*membrane)",
+          "validation": "Jika tertulis di laporan operasi, tampilkan sebagai kandidat validasi kode tambahan 14.9."
+        },
+        {
+          "name": "Tindakan Scleral Buckling",
+          "dataType": "Boolean",
+          "extraction": "(scleral\\s*buckl(?:e|ing)|sabuk\\s*sklera|cerclage)",
+          "validation": "Jika tindakan benar-benar dilakukan, tampilkan sebagai kandidat validasi 14.41/14.49. Diagnosis/kode H44.1 saja tidak dipakai sebagai bukti tindakan."
+        },
+        {
+          "name": "Komplikasi Okular Pascaprosedur",
+          "dataType": "String",
+          "extraction": "(TASS|CME|cystoid\\s*macular\\s*edema|edema\\s*makula\\s*kistoid|endoftalmitis\\s*(?:pasca|post)|PCO|posterior\\s*capsule\\s*opacification)",
+          "validation": "Temuan komplikasi harus dibedakan dari indikasi pra-operasi dan dikorelasikan dengan tanggal/prosedur."
+        },
+        {
+          "name": "Pendekatan Vitrektomi",
+          "dataType": "String",
+          "extraction": "(anterior\\s*approach|posterior\\s*approach|vitrektomi\\s*anterior|vitrektomi\\s*posterior|anterior\\s*vitrectomy|posterior\\s*vitrectomy|pars\\s*plana\\s*vitrectomy|PPV)",
+          "validation": "Bedakan pendekatan anterior dan posterior/pars plana. Kandidat 14.73 vs 14.74 mengikuti blueprint pengguna dan wajib dicocokkan dengan uraian resmi ICD-9-CM yang dipakai faskes."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-22",
+      "title": "VERIFIKASI MEDIS DENGUE / DEMAM DENGUE / DBD",
+      "sourceType": "USER_BLUEPRINT_WITH_OFFICIAL_CROSSCHECK",
+      "source": "Blueprint pengguna; WHO Dengue Guidelines 2009/2025",
+      "parameters": [
+        {
+          "name": "Hari Sakit Dengue",
+          "dataType": "Float",
+          "extraction": "(?:hari\\s*(?:sakit|demam)|demam\\s*hari\\s*ke)\\s*[:=]?\\s*([0-9.,]+)",
+          "validation": "Hari sakit diperlukan untuk membaca fase penyakit dan memilih pemeriksaan dengue secara tepat."
+        },
+        {
+          "name": "Trombosit Dengue Serial",
+          "dataType": "Float",
+          "extraction": "(?:trombosit|platelet)\\s*[:=]\\s*([0-9.,]+)",
+          "validation": "Ekstrak seluruh nilai serial; trombositopenia saja tidak membuktikan kebocoran plasma."
+        },
+        {
+          "name": "Hematokrit Dengue Serial",
+          "dataType": "Float",
+          "extraction": "(?:hematokrit|haematocrit|HCT)\\s*[:=]\\s*([0-9.,]+)\\s*%?",
+          "validation": "Hitung perubahan serial. Kenaikan sekitar 20% dari baseline mendukung hemokonsentrasi/kebocoran plasma menurut pedoman klasik WHO."
+        },
+        {
+          "name": "Bukti Kebocoran Plasma",
+          "dataType": "String",
+          "extraction": "(efusi\\s*pleura|pleural\\s*effusion|asites|ascites|hemokonsentrasi|haemoconcentration|plasma\\s*leak(?:age)?|hipoproteinemia|hipoalbuminemia)",
+          "validation": "Bukti objektif kebocoran plasma membedakan dengue tanpa leakage dari DHF/severe dengue; korelasikan dengan serial hematokrit dan cairan."
+        },
+        {
+          "name": "Perdarahan Dengue",
+          "dataType": "String",
+          "extraction": "(hematemesis|melena|epistaksis|gusi\\s*berdarah|hematuria|perdarahan\\s*(?:aktif|hebat|masif)|severe\\s*bleeding)",
+          "validation": "Catat jenis perdarahan dan stabilitas hemodinamik; jangan menilai hanya dari angka trombosit."
+        },
+        {
+          "name": "Syok atau Disfungsi Organ Dengue",
+          "dataType": "String",
+          "extraction": "(dengue\\s*shock\\s*syndrome|DSS|syok|shock|hipotensi|gagal\\s*organ|gangguan\\s*organ|respiratory\\s*distress)",
+          "validation": "Syok, distress akibat leakage, perdarahan berat, atau gangguan organ berat memerlukan penilaian severe dengue dan terapi aktif."
+        },
+        {
+          "name": "Tanda Bahaya Dengue",
+          "dataType": "String",
+          "extraction": "(nyeri\\s*perut\\s*(?:hebat|berat)|muntah\\s*(?:persisten|terus|berulang)|letargi|gelisah|hepatomegali|akumulasi\\s*cairan|perdarahan\\s*mukosa)",
+          "validation": "Tanda bahaya harus dikorelasikan dengan fase kritis dan monitoring klinis."
+        },
+        {
+          "name": "Konfirmasi Laboratorium Dengue",
+          "dataType": "String",
+          "extraction": "(NS\\s*1|dengue\\s*IgM|dengue\\s*IgG|PCR\\s*dengue|dengue\\s*PCR)\\s*[:=]?\\s*(positif|negatif|reaktif|non\\s*reaktif)?",
+          "validation": "Pilihan tes bergantung hari sakit; hasil harus dibaca bersama klinis dan epidemiologi."
+        },
+        {
+          "name": "Transfusi Trombosit Dengue",
+          "dataType": "String",
+          "extraction": "(transfusi\\s*trombosit|platelet\\s*transfusion|TC\\s*transfusion)",
+          "validation": "Sistem hanya memeriksa bukti dan konteks. Ambang transfusi dari blueprint pengguna tidak diperlakukan sebagai persetujuan otomatis; pedoman WHO menyatakan bukti transfusi platelet profilaksis terbatas."
+        }
+      ]
+    },
+    {
+      "id": "JKN-DOC-23",
+      "title": "VERIFIKASI MEDIS DEMAM TIFOID DAN PARATIFOID",
+      "sourceType": "USER_BLUEPRINT_WITH_OFFICIAL_CROSSCHECK",
+      "source": "KMK 514/2015; blueprint pengguna; WHO typhoid guidance",
+      "parameters": [
+        {
+          "name": "Durasi Demam Tifoid",
+          "dataType": "Float",
+          "extraction": "(?:demam|febris)(?:\\s*selama)?\\s*[:=]?\\s*([0-9.,]+)\\s*(hari|minggu)",
+          "validation": "Durasi dan pola demam merupakan konteks, bukan penentu diagnosis tunggal."
+        },
+        {
+          "name": "Gejala Klinis Tifoid",
+          "dataType": "String",
+          "extraction": "(demam\\s*(?:intermiten|sore|malam)|sakit\\s*kepala|mual|muntah|perut\\s*kembung|obstipasi|diare|lidah\\s*kotor|typhoid\\s*tongue)",
+          "validation": "Tampilkan kumpulan gejala yang mendukung dan diagnosis banding."
+        },
+        {
+          "name": "Kultur Salmonella",
+          "dataType": "String",
+          "extraction": "(?:kultur\\s*(?:darah|feses)|blood\\s*culture)\\s*[:=]?\\s*(salmonella\\s*(?:typhi|paratyphi)|positif|negatif|no\\s*growth)",
+          "validation": "Isolasi Salmonella Typhi/Paratyphi merupakan bukti laboratorium utama; hasil negatif tidak otomatis menyingkirkan penyakit."
+        },
+        {
+          "name": "Tubex Tifoid",
+          "dataType": "String",
+          "extraction": "TUBEX\\s*[:=]\\s*([0-9.]+|positif|negatif|reaktif|non\\s*reaktif)",
+          "validation": "Ekstrak hasil Tubex; interpretasi mengikuti metode dan nilai rujukan laboratorium."
+        },
+        {
+          "name": "Widal O Titer",
+          "dataType": "Float",
+          "extraction": "(?:Widal\\s*)?(?:Salmonella\\s*)?(?:Typhi\\s*)?O\\s*[:=]\\s*(?:1\\s*[/\\:]\\s*)?([0-9]+)",
+          "validation": "Titer tunggal mempunyai keterbatasan. Blueprint pengguna memakai O >=1/320 atau kenaikan serial bermakna; keputusan tidak boleh hanya dari Widal."
+        },
+        {
+          "name": "Widal H Titer",
+          "dataType": "Float",
+          "extraction": "(?:Widal\\s*)?(?:Salmonella\\s*)?(?:Typhi\\s*)?H\\s*[:=]\\s*(?:1\\s*[/\\:]\\s*)?([0-9]+)",
+          "validation": "Ekstrak titer H serial sebagai bukti pendukung, bukan penentu tunggal."
+        },
+        {
+          "name": "Intake Sulit Tifoid",
+          "dataType": "Boolean",
+          "extraction": "(intake\\s*sulit|sulit\\s*(?:makan|minum)|tidak\\s*bisa\\s*(?:makan|minum)|asupan\\s*tidak\\s*adekuat)",
+          "validation": "Salah satu alasan perawatan menurut blueprint pengguna bila terdokumentasi jelas."
+        },
+        {
+          "name": "Muntah Berlebihan Tifoid",
+          "dataType": "Boolean",
+          "extraction": "(muntah\\s*(?:terus|persisten|berulang|berlebihan|profus)|mual[^.;]{0,30}muntah)",
+          "validation": "Salah satu alasan perawatan menurut blueprint pengguna."
+        },
+        {
+          "name": "Penurunan Kesadaran Tifoid",
+          "dataType": "Boolean",
+          "extraction": "(delirium|somnolen|penurunan\\s*kesadaran|GCS\\s*[:=]?\\s*(?:[3-9]|1[0-4]))",
+          "validation": "Penurunan kesadaran mendukung kebutuhan perawatan dan evaluasi komplikasi."
+        },
+        {
+          "name": "Suhu Hiperpireksia Tifoid",
+          "dataType": "Float",
+          "extraction": "(?:suhu|temperature)\\s*[:=]\\s*([0-9.,]+)\\s*°?C?",
+          "validation": "Sistem menandai suhu >=40°C sebagai hiperpireksia untuk skrining internal; validasi klinis tetap wajib."
+        }
+      ]
+    },
+    {
+      "id": "JKN-PMK-01",
+      "title": "PENYAKIT MENULAR POTENSI WABAH / KEJADIAN LUAR BIASA (KLB) (PMK No. 1501/2010)",
+      "sourceType": "USER_BLUEPRINT",
+      "source": "skema-parameter-ai-ocr-jkn-v4.docx",
+      "parameters": [
+        {
+          "name": "Jenis Penyakit Potensi KLB / Wabah",
+          "dataType": "String",
+          "extraction": "(?:Penyakit\\s*Menular|Diagnosa\\s*Wabah)\\s*[:=]\\s*(Kolera|Pes|DBD|Polio|Campak|Difteri|Pertusis|Rabies|Antraks|Leptospirosis)",
+          "validation": "Kriteria: Jenis penyakit menular tertentu yang menimbulkan wabah berdasarkan PMK No. 1501/2010. • Kolera (A00), Pes (A20), DBD (A90-A91), Polio (A80), Campak (B05), Difteri (A36), Pertusis (A37), Rabies (A82), Antraks (A22), Leptospirosis (A27)."
+        },
+        {
+          "name": "Status KLB / Wabah Kriteria Epidemiologi",
+          "dataType": "String",
+          "extraction": "(?:Status\\s*KLB|Wabah|CFR)\\s*[:=]\\s*(KLB|Wabah|Kasus\\s*Tunggal)",
+          "validation": "Kriteria: Penetapan status kedaruratan epidemiologi oleh menteri/kepala daerah. Rule: Adanya peningkatan bermakna kejadian kesakitan 2 kali atau lebih, atau penemuan 1 kasus tunggal penyakit karantina (Polio, Difteri, Kolera, Pes, Rabies) otomatis menetapkan status Kejadian Luar Biasa (KLB)."
+        },
+        {
+          "name": "Konfirmasi Laboratorium Kriteria Emas Lab",
+          "dataType": "String",
+          "extraction": "(?:Kultur|Isolasi|PCR|Serologi)\\s*[:=]\\s*(.*)",
+          "validation": "Kriteria: Hasil pengujian laboratorium spesifik untuk penegakan diagnosis definitif. • Kolera: ditemukan kuman Vibrio cholerae dari kultur feses. • Polio: ditemukan virus polio liar dari isolasi tinja. • Difteri: ditemukan kuman Corynebacterium diphtheriae dan uji toksigenisitas positif. • DBD: hasil serologi IgM anti-dengue positif atau antigen NS1 positif."
+        },
+        {
+          "name": "Pelaporan Wajib Surveillans Laporan W1",
+          "dataType": "Boolean",
+          "extraction": "(?:Laporan\\s*W1|Laporan\\s*24\\s*Jam)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Kriteria: Kewajiban faskes melaporkan penemuan kasus potensi wabah. Rule: Kasus harus dilaporkan secara tertulis/elektronik (Formulir W1) dalam waktu 1x24 jam sejak didiagnosis kepada Dinas Kesehatan setempat."
+        },
+        {
+          "name": "Tindakan Isolasi Pencegahan Penularan",
+          "dataType": "Boolean",
+          "extraction": "(?:Isolasi|Ruang\\s*Isolasi|Karantina)\\s*[:=]\\s*(Ya|Tidak)",
+          "validation": "Kriteria: Upaya melokalisir pasien terinfeksi di ruang perawatan khusus bertekanan negatif atau bangsal isolasi wabah. Rule: Diindikasikan untuk mencegah penularan udara (droplet/airborne) pada kasus Difteri, Influenza Avian, atau penyakit menular karantina lainnya."
+        }
+      ]
+    },
+    {
+      "id": "JKN-KMK-953-2026-01",
+      "title": "KELOMPOK KASUS SEKSIO SESAREA (ICD-10: O82.- / Prosedur: 74.-)",
+      "sourceType": "USER_BLUEPRINT_WITH_OFFICIAL_CROSSCHECK",
+      "source": "KMK No. HK.01.07-MENKES-953-2026 ttg Standar Pelayanan Seksio Sesarea di Rumah Sakit",
+      "parameters": [
+        {
+          "name": "Heart Rate Ibu",
+          "dataType": "Int",
+          "extraction": "(?:HR|Nadi|Heart\\\\s*Rate|Pulse)\\\\s*(?:Ibu)?\\\\s*[:=]\\\\s*([0-9]+)",
+          "validation": "Takikardia jika HR > 100 x/menit, mendukung indikasi instabilitas hemodinamik."
+        },
+        {
+          "name": "Respiratory Rate Ibu",
+          "dataType": "Int",
+          "extraction": "(?:RR|Respiratory\\\\s*Rate|Napas)\\\\s*(?:Ibu)?\\\\s*[:=]\\\\s*([0-9]+)",
+          "validation": "Takipnea jika RR > 20 x/menit, mendukung indikasi instabilitas hemodinamik."
+        },
+        {
+          "name": "Capillary Refill Time (CRT)",
+          "dataType": "Float",
+          "extraction": "CRT\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "Pemanjangan CRT > 2 detik mengindikasikan gangguan perfusi perifer/syok."
+        },
+        {
+          "name": "Syok Indeks",
+          "dataType": "Float",
+          "extraction": "(?:Syok\\\\s*Indeks|Shock\\\\s*Index)\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "Syok Indeks >= 0.9 mendukung adanya instabilitas hemodinamik, perdarahan, atau solusio plasenta."
+        },
+        {
+          "name": "Suhu Ibu",
+          "dataType": "Float",
+          "extraction": "(?:Suhu|Temp)\\\\s*(?:Ibu)?\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "Suhu >= 38°C merupakan tanda infeksi intrauterin."
+        },
+        {
+          "name": "Tekanan Darah Ibu",
+          "dataType": "String",
+          "extraction": "(?:TD|Tekanan\\\\s*Darah|Tensi)\\\\s*[:=]\\\\s*([0-9]{2,3}\\\\s*/\\\\s*[0-9]{2,3})",
+          "validation": "TD >= 160/110 mmHg mendukung preeklamsia dengan gambaran berat."
+        },
+        {
+          "name": "GCS Ibu",
+          "dataType": "Int",
+          "extraction": "GCS\\\\s*(?:Ibu)?\\\\s*[:=]?\\\\s*([0-9]+)",
+          "validation": "GCS < 15 mendukung indikasi eklamsia/perburukan preeklamsia berat."
+        },
+        {
+          "name": "Skor Nyeri (NRS)",
+          "dataType": "Int",
+          "extraction": "(?:NRS|Skor\\\\s*Nyeri|VAS)\\\\s*[:=]\\\\s*([0-9]+)",
+          "validation": "NRS > 4/10 mendukung tanda solusio plasenta atau ruptur uteri."
+        },
+        {
+          "name": "Denyut Jantung Janin (DJJ)",
+          "dataType": "Int",
+          "extraction": "(?:DJJ|FHR|Denyut\\\\s*Jantung\\\\s*Janin)\\\\s*[:=]\\\\s*([0-9]+)",
+          "validation": "Fetal distress/gawat janin jika DJJ <= 100 atau >= 180 dpm."
+        },
+        {
+          "name": "Hasil CTG",
+          "dataType": "String",
+          "extraction": "(?:CTG|Cardiotocography)\\\\s*[:=]\\\\s*(Kategori\\\\s*[1-3]|Abnormal|Normal|Mencurigakan)",
+          "validation": "CTG Kategori 3 atau Kategori 2 berulang mendukung indikasi fetal distress."
+        },
+        {
+          "name": "Tinggi Fundus Uteri (TFU)",
+          "dataType": "Float",
+          "extraction": "TFU\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "TFU >= 39 cm mendukung indikasi makrosomia."
+        },
+        {
+          "name": "Taksiran Berat Janin (EFW)",
+          "dataType": "Float",
+          "extraction": "(?:EFW|Taksiran\\\\s*Berat|TBJ|TB)\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "USG Taksiran Berat Janin >= 4000g mendukung indikasi makrosomia."
+        },
+        {
+          "name": "Indeks Cairan Amnion (AFI)",
+          "dataType": "Float",
+          "extraction": "(?:AFI|ICA|Indeks\\\\s*Cairan\\\\s*Amnion)\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "AFI/ICA <= 5 cm mendukung indikasi oligohidramnion."
+        },
+        {
+          "name": "Single Deepest Pocket (SDP)",
+          "dataType": "Float",
+          "extraction": "SDP\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "SDP < 2 cm mendukung indikasi oligohidramnion."
+        },
+        {
+          "name": "Pembukaan Serviks",
+          "dataType": "Float",
+          "extraction": "(?:Pembukaan|Dilatasi|VT)\\\\s*(?:Serviks)?\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "Kemajuan persalinan terhambat jika pembukaan < 1 cm/jam pada fase aktif (minimal 2 jam)."
+        },
+        {
+          "name": "Durasi Inpartu",
+          "dataType": "Float",
+          "extraction": "(?:Durasi\\\\s*Inpartu|Lama\\\\s*Persalinan)\\\\s*[:=]\\\\s*([0-9.]+)",
+          "validation": "Total durasi inpartu > 20 jam (nulipara) atau > 14 jam (multipara) mendukung persalinan lama."
+        }
+      ]
+    }
+  ]
+}
