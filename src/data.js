@@ -5,7 +5,10 @@ export const outcomes = {
   'tidak-layak': 'Tidak Layak',
 };
 
-let backendMode = null; // null | 'server' | 'client'
+const isLocalBackendHost = typeof window !== 'undefined'
+  && (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost');
+
+let backendMode = isLocalBackendHost ? null : 'client'; // null | 'server' | 'client'
 let clientBackendPromise = null;
 
 function getClientBackend() {
@@ -40,9 +43,9 @@ export async function api(path, config = {}) {
   const contentType = response.headers.get('content-type') || '';
   const isJsonResponse = contentType.includes('application/json');
 
-  // If initial API call returns non-JSON 404/502/503 (e.g. hosted on Vercel static without Node server),
+  // If any API call returns non-JSON (e.g. hosted on static server without Node backend),
   // switch seamlessly to in-browser client backend (IndexedDB + PDF.js + Tesseract.js).
-  if (backendMode === null && !isJsonResponse && (!response.ok || contentType.includes('text/html'))) {
+  if (backendMode !== 'server' && !isJsonResponse) {
     backendMode = 'client';
     const { clientApi } = await getClientBackend();
     return await clientApi(path, config);
